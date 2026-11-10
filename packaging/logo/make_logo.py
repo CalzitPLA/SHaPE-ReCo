@@ -14,6 +14,7 @@ and, with --3d <render.png> (the Blender render of blender_logo.py, 2048 px):
   shape-reco-3d-badge.png  the badge alone, 1024 px, transparent outside the circle
   ../shape-reco.svg, ../shape-reco.png  the application icon (install.sh, the GUI's window icon): the badge,
                            SVG with outlined text and a 256 px PNG
+  previews/icon_sizes.png  the icon at the sizes a desktop shows it (128 to 16 px), to judge what stays readable
   The badge carries Batrachotoxin, the frog's poison (molecule_2d.py): its skeletal formula as Wikipedia draws it
   (Commons, public domain) in the free sky the spyglass points at, its name and sum formula (PubChem via the
   MoleculMaker macro) along the ring. The disc and the
@@ -499,6 +500,13 @@ def make_3d(render):
         subprocess.run(["inkscape", str(badge), "--export-type=png", f"--export-filename={icon_png}", "-w", "256"],
                        check=True, capture_output=True)
         print("wrote", icon_png)
+        sizes = HERE / "previews" / "icon_sizes.png"
+        sizes.parent.mkdir(exist_ok=True)
+        cmd = ["magick", "-background", "#3C3C3C"]
+        for px in (128, 64, 48, 32, 24, 16):
+            cmd += ["(", str(icon_png), "-resize", f"{px}x{px}", "-gravity", "center", "-extent", f"{px + 12}x140", ")"]
+        subprocess.run(cmd + ["+append", str(sizes)], check=True, capture_output=True)
+        print("wrote", sizes)
 
 
 def main():
