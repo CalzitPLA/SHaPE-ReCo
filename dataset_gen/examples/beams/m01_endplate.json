@@ -1,0 +1,109 @@
+{
+ "name": "m01_endplate",
+ "description": "IPE 300 x 2 m with a 400 x 200 x 20 end plate welded on",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "IPE 300",
+   "envelope": "IPE 300",
+   "section": {
+    "h": 300.0,
+    "b": 150.0,
+    "tw": 7.1,
+    "tf": 10.7,
+    "r": 15.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    1.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "welded_plate",
+   "members": [
+    0
+   ],
+   "feature": 0
+  }
+ ],
+ "features": [
+  {
+   "op": "add",
+   "kind": "box",
+   "name": "end plate",
+   "min": [
+    2000,
+    -100,
+    -200
+   ],
+   "max": [
+    2020,
+    100,
+    200
+   ]
+  }
+ ],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "feature": 0
+   }
+  ],
+  "adds": 4,
+  "cuts": 0,
+  "total": 4,
+  "notes": []
+ },
+ "volume_mm3": 12362403.305884581,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 640,
+ "bbox_min": [
+  -7.958078640513122e-13,
+  -100.0,
+  -200.0
+ ],
+ "bbox_max": [
+  2020.0,
+  100.0,
+  200.0
+ ],
+ "diagonal_mm": 2068.912757948001,
+ "stl_deflection_mm": 0.5
+}

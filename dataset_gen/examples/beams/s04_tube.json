@@ -1,0 +1,68 @@
+{
+ "name": "s04_tube",
+ "description": "CHS 168.3 x 8 x 2 m along y",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "tube",
+   "profile": "CHS 168.3x8",
+   "section": {
+    "d": 168.3,
+    "t": 8
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    2000.0,
+    0.0
+   ],
+   "up": null,
+   "ext": [
+    0.0,
+    0.0
+   ],
+   "inner_ext": null
+  }
+ ],
+ "joints": [],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 0
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 0
+   }
+  ],
+  "adds": 1,
+  "cuts": 1,
+  "total": 2,
+  "notes": []
+ },
+ "volume_mm3": 8057556.837927099,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 1152,
+ "bbox_min": [
+  -84.15,
+  0.0,
+  -84.15
+ ],
+ "bbox_max": [
+  84.15,
+  2000.0,
+  84.15
+ ],
+ "diagonal_mm": 2014.1126532545295,
+ "stl_deflection_mm": 0.5
+}

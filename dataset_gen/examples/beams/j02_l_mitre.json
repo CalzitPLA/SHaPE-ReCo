@@ -1,0 +1,164 @@
+{
+ "name": "j02_l_mitre",
+ "description": "L-corner of two HEA 300 with a 45 deg mitre",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "HEA 300",
+   "envelope": "HEA 300",
+   "section": {
+    "h": 290.0,
+    "b": 300.0,
+    "tw": 8.5,
+    "tf": 14.0,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    155.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 300",
+   "envelope": "HEA 300",
+   "section": {
+    "h": 290.0,
+    "b": 300.0,
+    "tw": 8.5,
+    "tf": 14.0,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    0.0,
+    2000.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    155.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "mitre",
+   "members": [
+    0,
+    1
+   ],
+   "angle_deg": 45
+  }
+ ],
+ "features": [],
+ "mitres": [
+  {
+   "member": 0,
+   "point": [
+    -0.5,
+    0,
+    0.5
+   ],
+   "normal": [
+    -0.7071067811865475,
+    0.0,
+    0.7071067811865475
+   ]
+  },
+  {
+   "member": 1,
+   "point": [
+    0.5,
+    0,
+    -0.5
+   ],
+   "normal": [
+    0.7071067811865475,
+    0.0,
+    -0.7071067811865475
+   ]
+  }
+ ],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   }
+  ],
+  "adds": 6,
+  "cuts": 0,
+  "total": 6,
+  "notes": [
+   "mitre: the 3-box I-beams reproduce it up to tf-sized triangles at the flange ends (a rotated box cut per member would be exact)"
+  ]
+ },
+ "volume_mm3": 45011707.32214402,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 1772,
+ "bbox_min": [
+  -146.0,
+  -150.0,
+  -146.0
+ ],
+ "bbox_max": [
+  2000.0,
+  150.0,
+  2000.0
+ ],
+ "diagonal_mm": 3049.693755117061,
+ "stl_deflection_mm": 0.5
+}

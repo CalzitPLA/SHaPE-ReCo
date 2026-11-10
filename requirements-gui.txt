@@ -1,0 +1,3 @@
+# the window (python3 -m reco_gui, the command shape-reco): Qt widgets and the 3D view
+PyQt5>=5.15
+vtk>=9.3

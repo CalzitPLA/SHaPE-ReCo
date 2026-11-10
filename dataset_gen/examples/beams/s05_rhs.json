@@ -1,0 +1,72 @@
+{
+ "name": "s05_rhs",
+ "description": "RHS 200 x 100 x 8 x 2 m along x",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "rhs",
+   "profile": "RHS 200x100x8",
+   "section": {
+    "h": 200,
+    "b": 100,
+    "t": 8
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "cut",
+    "kind": "box",
+    "member": 0
+   }
+  ],
+  "adds": 1,
+  "cuts": 1,
+  "total": 2,
+  "notes": []
+ },
+ "volume_mm3": 9088000.0,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 32,
+ "bbox_min": [
+  0.0,
+  -50.0,
+  -100.0
+ ],
+ "bbox_max": [
+  2000.0,
+  50.0,
+  100.0
+ ],
+ "diagonal_mm": 2012.4611797498108,
+ "stl_deflection_mm": 0.5
+}

@@ -1,0 +1,80 @@
+{
+ "name": "s02_hea500_rot",
+ "description": "HEA 500 x 3 m, rotated 30 deg about x then 30 deg about y",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    -1299.038105676658,
+    0.0,
+    749.9999999999999
+   ],
+   "end": [
+    1299.038105676658,
+    0.0,
+    -749.9999999999999
+   ],
+   "up": [
+    0.4330127018922193,
+    -0.49999999999999994,
+    0.7500000000000001
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   }
+  ],
+  "adds": 3,
+  "cuts": 0,
+  "total": 3,
+  "notes": []
+ },
+ "volume_mm3": 59261336.86659913,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 624,
+ "bbox_min": [
+  -1442.6262176402518,
+  -252.4038105676658,
+  -998.701905283833
+ ],
+ "bbox_max": [
+  1442.6262176402518,
+  252.4038105676658,
+  998.701905283833
+ ],
+ "diagonal_mm": 3545.297495573343,
+ "stl_deflection_mm": 0.5
+}

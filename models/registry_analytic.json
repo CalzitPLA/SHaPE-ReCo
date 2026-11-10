@@ -1,0 +1,484 @@
+{
+ "version": 1,
+ "about": "The AI-free type stage (the registry entry type_analytic of Framework_v_1.0.1, every kind scored by the voxel IoU of its own fit) with the pose entries of models/registry.json: the path variant \"analytic\" of reco_engine/path_policy.py (2026-10-10). Read by stage_registry.load_registry like models/registry.json.",
+ "default_type_entry": null,
+ "ensembles": {
+  "type": {
+   "rule": "cylgate",
+   "members": [
+    "type_v3_B",
+    "type_inscale_v2",
+    "type_v4",
+    "type_hollow"
+   ],
+   "cylinder_threshold": 0.7,
+   "description": "cylinder iff mean P(cylinder) of type_v4+type_hollow >= 0.7, else box/sphere from mean(type_v3_B, type_inscale_v2); take the top-2 and let the downstream fit grade prune",
+   "pooled_accuracy": 0.9608,
+   "pooled_top2": 0.9804,
+   "per_set": {
+    "test": 0.9625,
+    "test_carve": 0.99,
+    "test_ff": 0.9775,
+    "test_mixed": 0.98,
+    "test_cyl": 0.885,
+    "test_hollow": 0.97
+   },
+   "gate": 0.994,
+   "gate_coverage": 0.487,
+   "alternative": {
+    "id": "mean_all5",
+    "pooled_accuracy": 0.9513,
+    "top2": 0.9929,
+    "gate": 0.695,
+    "note": "best box/sphere accuracy, but test_cyl only 0.765"
+   },
+   "g0": "fails against the per-set specialists (no combination beats B on box/sphere AND hollow/v4 on cylinders); passes vs the best pooled single net (type_hollow) on 4 of 6 sets"
+  }
+ },
+ "entries": [
+  {
+   "id": "type_analytic",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 10,
+   "gate": null,
+   "metrics": {
+    "impl": "reco_engine/cascade.py _run_type_entry: every kind scored by the voxel IoU of its own fit (box: face-normal frame fit, sphere / cylinder: IoU descents, cone / torus: exact-field fit)",
+    "weight": 1.0
+   }
+  },
+  {
+   "id": "box_rot_pca",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "prior",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 2,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_carve+test_mixed (600 boxes)",
+    "within10": 0.4533,
+    "median_deg": 11.742,
+    "mean_deg": 20.005
+   }
+  },
+  {
+   "id": "sphere_rot_none",
+   "stage": "rotation",
+   "kinds": [
+    "sphere"
+   ],
+   "mode": "prior",
+   "path": null,
+   "input_kind": "none",
+   "cost": 0,
+   "gate": 1.0,
+   "metrics": {
+    "note": "rotation-invariant: identity"
+   }
+  },
+  {
+   "id": "box_rot_frame",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 1,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_carve+test_mixed (600 boxes)",
+    "within10": 0.935,
+    "median_deg": 1.286,
+    "mean_deg": 6.445,
+    "impl": "reco_engine/box_orientation.py BoxOrienter.frame_only (SHAPE_RECO_BOX_ORIENTER=frame)",
+    "ms_per_volume": 54
+   }
+  },
+  {
+   "id": "cyl_fit_analytic",
+   "stage": "rotation",
+   "kinds": [
+    "cylinder"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/cylinder_fit_eval.json",
+    "test_set": "test_cyl (134)",
+    "axis_median_deg": 0.471,
+    "axis_within5": 0.7015,
+    "impl": "reco_engine/cylinder_fit.py"
+   }
+  },
+  {
+   "id": "box_rot_I_frame",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_rot_sym/I_frame",
+   "input_kind": "occupancy",
+   "cost": 20,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_carve+test_mixed (600 boxes)",
+    "within10": 0.9283,
+    "median_deg": 1.651,
+    "mean_deg": 6.838,
+    "note": "residual after the frame fit; commit d81ccdb4: adds nothing over the frame fit"
+   }
+  },
+  {
+   "id": "box_rot_H_manifold",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_rot_sym/H_manifold",
+   "input_kind": "occupancy",
+   "cost": 21,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_carve+test_mixed (600 boxes)",
+    "within10": 0.8933,
+    "median_deg": 1.426,
+    "mean_deg": 6.971,
+    "note": "PCA residual; same weights as checkpoints_box/rotation"
+   }
+  },
+  {
+   "id": "box_rot_fused_net",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_fused/net_fused",
+   "input_kind": "fused",
+   "cost": 30,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_ff (346 boxes)",
+    "within10": 0.0549,
+    "median_deg": 34.036,
+    "mean_deg": 38.253
+   }
+  },
+  {
+   "id": "box_rot_field_pertopo",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/box_rotation_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_mean_deg": 44,
+    "note": "training validation split; axis loss sign bug suspected (train_field_rotation.py:68)"
+   }
+  },
+  {
+   "id": "cylinder_rot_field_pertopo",
+   "stage": "rotation",
+   "kinds": [
+    "cylinder"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/cylinder_rotation_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_mean_deg": 42,
+    "note": "training validation split; axis loss sign bug suspected (train_field_rotation.py:68)"
+   }
+  },
+  {
+   "id": "cone_rot_field_pertopo",
+   "stage": "rotation",
+   "kinds": [
+    "cone"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/cone_rotation_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_mean_deg": 50,
+    "note": "training validation split; axis loss sign bug suspected (train_field_rotation.py:68)"
+   }
+  },
+  {
+   "id": "torus_rot_field_pertopo",
+   "stage": "rotation",
+   "kinds": [
+    "torus"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/torus_rotation_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_mean_deg": 47,
+    "note": "training validation split; axis loss sign bug suspected (train_field_rotation.py:68)"
+   }
+  },
+  {
+   "id": "field_fit",
+   "stage": "rotation",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "vf_exact",
+   "cost": 50,
+   "gate": null,
+   "metrics": {
+    "note": "reco_field/fit.py Tukey-IRLS on the exact closest-point field; 41 example parts reconstructed, mean chamfer 0.0012 mm (docs/data/peel_examples.json); not scored per stage on the voxel test sets"
+   }
+  },
+  {
+   "id": "box_dims_measured",
+   "stage": "dimensions",
+   "kinds": [
+    "box"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 2,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json / box_dims_eval.json",
+    "test_set": "test_mixed+test_carve (400 boxes)",
+    "rel_median": 0.1449,
+    "volume_median": 0.2129,
+    "abs_median_vox": 0.824,
+    "impl": "extents after the frame fit (BoxOrienter.frame_only)",
+    "runner_up_measured_after_H": 0.1507
+   }
+  },
+  {
+   "id": "sphere_fit_analytic",
+   "stage": "dimensions",
+   "kinds": [
+    "sphere"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_mixed+test_carve spheres (100)",
+    "radius_rel_median": 0.0052,
+    "impl": "reco_engine/sphere_fit.py"
+   }
+  },
+  {
+   "id": "cyl_fit_analytic",
+   "stage": "dimensions",
+   "kinds": [
+    "cylinder"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_cyl (134)",
+    "radius_rel_median": 0.018,
+    "half_length_rel_median": 0.0358,
+    "iou_median": 0.8301
+   }
+  },
+  {
+   "id": "box_dims_cnn",
+   "stage": "dimensions",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_box_dims/dims_cnn",
+   "input_kind": "occupancy",
+   "cost": 20,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json / box_dims_eval.json",
+    "test_set": "test_mixed+test_carve (400 boxes)",
+    "rel_median": 0.2649,
+    "volume_median": 0.2533,
+    "abs_median_vox": 2.478
+   }
+  },
+  {
+   "id": "dims_fused_net",
+   "stage": "dimensions",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_fused/net_fused",
+   "input_kind": "fused",
+   "cost": 30,
+   "gate": null,
+   "metrics": {
+    "val_size_l1_log": 0.25,
+    "note": "training validation split only; not scored on the test sets"
+   }
+  },
+  {
+   "id": "field_fit",
+   "stage": "dimensions",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "vf_exact",
+   "cost": 50,
+   "gate": null,
+   "metrics": {
+    "note": "see rotation/field_fit"
+   }
+  },
+  {
+   "id": "position_placement",
+   "stage": "position",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 1,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_mixed+test_carve",
+    "impl": "reco_engine/placement.py estimate_placement(center='cog')",
+    "box_cog": {
+     "median_vox": 2.384,
+     "within1_vox": 0.19,
+     "n": 400
+    },
+    "box_bbox": {
+     "median_vox": 5.841,
+     "within1_vox": 0.265,
+     "n": 400
+    },
+    "sphere_cog": {
+     "median_vox": 2.03,
+     "within1_vox": 0.17,
+     "n": 400
+    },
+    "sphere_bbox": {
+     "median_vox": 2.751,
+     "within1_vox": 0.297,
+     "n": 400
+    },
+    "note": "error to the UNCUT primitive's centre_vox; a cut/carved body cannot show it"
+   }
+  },
+  {
+   "id": "sphere_fit_analytic",
+   "stage": "position",
+   "kinds": [
+    "sphere"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_mixed+test_carve spheres",
+    "center_median_vox": 0.68,
+    "within1_vox": 0.74
+   }
+  },
+  {
+   "id": "cyl_fit_analytic",
+   "stage": "position",
+   "kinds": [
+    "cylinder"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_cyl (134)",
+    "center_median_vox": 1.25
+   }
+  },
+  {
+   "id": "field_fit",
+   "stage": "position",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "vf_exact",
+   "cost": 50,
+   "gate": null,
+   "metrics": {
+    "note": "see rotation/field_fit"
+   }
+  }
+ ],
+ "type_stage": {
+  "rule": "type_analytic only: every kind scored by the voxel IoU of its own fit (the AI-free framework, Framework_v_1.0.1)"
+ }
+}

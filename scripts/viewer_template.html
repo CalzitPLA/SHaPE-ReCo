@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SHaPe ReCo - strategy comparison</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#14171c; --panel:#1c2027; --line:#2c323c; --fg:#dde2ea; --mute:#8b94a3; --accent:#5aa9ff; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--fg);
+               font:13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow:hidden; }
+  #bar { display:flex; flex-wrap:wrap; gap:6px 18px; align-items:center; padding:8px 12px;
+         background:var(--panel); border-bottom:1px solid var(--line); }
+  #bar label { display:flex; align-items:center; gap:5px; color:var(--mute); white-space:nowrap; }
+  #bar select, #bar button { background:#242a33; color:var(--fg); border:1px solid var(--line);
+         border-radius:5px; padding:3px 8px; font:inherit; }
+  #bar button.on { background:var(--accent); color:#06121f; border-color:var(--accent); }
+  #bar input[type=range] { width:150px; }
+  #desc { color:var(--mute); }
+  #stage { position:relative; width:100vw; }
+  canvas { display:block; width:100%; height:100%; }
+  .title { position:absolute; top:8px; padding:0 12px; pointer-events:none; }
+  .title b { font-size:14px; }
+  .title .m { color:var(--mute); }
+  .title .up { color:#5fd08a; } .title .down { color:#ff7b72; }
+  #legend { position:absolute; bottom:8px; left:12px; color:var(--mute); pointer-events:none; }
+  #legend i { display:inline-block; width:10px; height:10px; margin:0 4px 0 12px; vertical-align:-1px; }
+  .sep { border-left:1px solid var(--line); height:18px; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <label>Part <select id="part"></select></label>
+  <span id="desc"></span>
+  <span class="sep"></span>
+  <label>Cutaway
+    <button data-axis="x">X</button><button data-axis="y">Y</button><button data-axis="z">Z</button><button data-axis="">off</button>
+  </label>
+  <label><input type="range" id="clip" min="-0.5" max="0.5" step="0.005" value="0"><span id="clipv">0.00</span></label>
+  <label><input type="checkbox" id="flip">flip side</label>
+  <span class="sep"></span>
+  <label><input type="checkbox" id="mesh" checked>result mesh</label>
+  <label><input type="checkbox" id="err" checked>voxel error</label>
+  <label><input type="checkbox" id="prim">primitives</label>
+  <label><input type="checkbox" id="ghost">ghost input</label>
+</div>
+<div id="stage"><canvas id="c"></canvas><div id="titles"></div>
+  <div id="legend">
+    <i style="background:#ff9f1c"></i>missing (input has it, result does not)
+    <i style="background:#ef476f"></i>excess (result has it, input does not)
+    <i style="background:#3ddc84"></i>added primitive
+    <i style="background:#e040fb"></i>cut (void)
+    &nbsp;&nbsp;drag: rotate &middot; wheel: zoom &middot; right-drag: pan
+  </div>
+</div>
+
+<script>/*__THREE__*/</script>
+<script type="application/json" id="data">/*__DATA__*/</script>
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const RES = DATA.resolution;
+const bytes = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const floats = s => new Float32Array(bytes(s).buffer);
+
+const PANELS = [
+  { key: "input",  label: "Input" },
+  { key: "default", label: "Default strategy" },
+  { key: "octree", label: "Octree (adaptive depth)" },
+];
+const el = id => document.getElementById(id);
+const state = { part: 0, axis: "", clip: 0, flip: false, mesh: true, err: true, prim: false, ghost: false };
+
+// ---------------------------------------------------------------- three.js
+const canvas = el("c");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+renderer.localClippingEnabled = true;
+renderer.setClearColor(0x14171c);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.01, 50);
+camera.up.set(0, 0, 1);
+camera.position.set(1.55, -1.85, 1.25);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.target.set(0, 0, 0);
+controls.enableDamping = false;
+const plane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+const NO_CLIP = [];
+
+const scenes = PANELS.map(() => {
+  const s = new THREE.Scene();
+  s.add(new THREE.HemisphereLight(0xffffff, 0x445566, 0.85));
+  const d = new THREE.DirectionalLight(0xffffff, 0.6); d.position.set(2, -3, 4); s.add(d);
+  const cube = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)),
+                                      new THREE.LineBasicMaterial({ color: 0x3a4250 }));
+  s.add(cube);
+  const group = new THREE.Group(); s.add(group);
+  s.userData.group = group;
+  return s;
+});
+
+function meshOf(b64, color, opacity, flat) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(floats(b64), 3));
+  g.computeVertexNormals();
+  const m = new THREE.MeshStandardMaterial({
+    color, roughness: 0.65, metalness: 0.05, flatShading: flat, side: THREE.DoubleSide,
+    transparent: opacity < 1, opacity, depthWrite: opacity >= 0.95, clippingPlanes: NO_CLIP,
+  });
+  return new THREE.Mesh(g, m);
+}
+
+function cubesOf(b64, color) {
+  const a = bytes(b64), n = a.length / 3;
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55, clippingPlanes: NO_CLIP });
+  const inst = new THREE.InstancedMesh(new THREE.BoxGeometry(1 / RES, 1 / RES, 1 / RES), mat, Math.max(n, 1));
+  const m = new THREE.Matrix4();
+  for (let i = 0; i < n; i++) {
+    // array order is [z, y, x]
+    // array is [z, y, x] and its y axis runs backwards
+    m.makeTranslation((a[3 * i + 2] + 0.5) / RES - 0.5, 0.5 - (a[3 * i + 1] + 0.5) / RES, (a[3 * i] + 0.5) / RES - 0.5);
+    inst.setMatrixAt(i, m);
+  }
+  inst.count = n;
+  inst.instanceMatrix.needsUpdate = true;
+  return inst;
+}
+
+function boxesOf(prims) {
+  const g = new THREE.Group();
+  for (const p of prims) {
+    const size = p.hi.map((h, i) => Math.max(h - p.lo[i], 1e-4));
+    const geo = new THREE.EdgesGeometry(new THREE.BoxGeometry(size[0], size[1], size[2]));
+    const line = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({
+      color: p.kind === "cut" ? 0xe040fb : 0x3ddc84, clippingPlanes: NO_CLIP }));
+    line.position.set(...p.lo.map((l, i) => (l + p.hi[i]) / 2));
+    g.add(line);
+  }
+  return g;
+}
+
+let current = { mesh: [], err: [], prim: [], ghost: [] };
+
+function rebuild() {
+  const part = DATA.parts[state.part];
+  current = { mesh: [], err: [], prim: [], ghost: [] };
+  PANELS.forEach((panel, i) => {
+    const group = scenes[i].userData.group;
+    while (group.children.length) group.remove(group.children[0]);
+    if (panel.key === "input") {
+      const m = meshOf(part.input, 0xb9c0cc, 1, true); group.add(m);
+      return;
+    }
+    const r = part.results[panel.key];
+    if (!r) return;
+    const ghost = meshOf(part.input, 0xb9c0cc, 0.13, true); group.add(ghost); current.ghost.push(ghost);
+    const mesh = meshOf(r.tris, 0x5aa9ff, 0.55, true); group.add(mesh); current.mesh.push(mesh);
+    const err = new THREE.Group();
+    err.add(cubesOf(r.missing, 0xff9f1c)); err.add(cubesOf(r.excess, 0xef476f));
+    group.add(err); current.err.push(err);
+    const prim = boxesOf(r.primitives); group.add(prim); current.prim.push(prim);
+  });
+  el("desc").textContent = part.description;
+  titles();
+  applyToggles();
+}
+
+function titles() {
+  const part = DATA.parts[state.part];
+  const base = part.results.default && part.results.default.metrics;
+  el("titles").innerHTML = PANELS.map((panel, i) => {
+    let body = "";
+    if (panel.key === "input") body = `<span class="m">${part.name}</span>`;
+    else {
+      const r = part.results[panel.key];
+      if (!r) body = `<span class="m">nothing accepted</span>`;
+      else {
+        const m = r.metrics;
+        let delta = "";
+        if (panel.key === "octree" && base) {
+          const d = m.iou - base.iou;
+          delta = ` <span class="${d >= 0 ? "up" : "down"}">${d >= 0 ? "+" : ""}${d.toFixed(3)}</span>`;
+        }
+        body = `<span class="m">IoU</span> <b>${m.iou.toFixed(3)}</b>${delta}
+                <span class="m">&middot; added</span> ${m.added} <span class="m">cut</span> <b>${m.cut}</b>
+                <span class="m">&middot; excess</span> ${(m.overcoverage * 100).toFixed(1)}%
+                <span class="m">&middot; ${m.seconds}s</span>`;
+      }
+    }
+    return `<div class="title" style="left:${(100 * i) / 3}%;width:33.33%"><b>${panel.label}</b><br>${body}</div>`;
+  }).join("");
+}
+
+function applyToggles() {
+  current.mesh.forEach(o => (o.visible = state.mesh));
+  current.err.forEach(o => (o.visible = state.err));
+  current.prim.forEach(o => (o.visible = state.prim));
+  current.ghost.forEach(o => (o.visible = state.ghost));
+  const on = state.axis !== "";
+  NO_CLIP.length = 0;
+  if (on) {
+    const sign = state.flip ? 1 : -1;
+    plane.normal.set(state.axis === "x" ? sign : 0, state.axis === "y" ? sign : 0, state.axis === "z" ? sign : 0);
+    plane.constant = -sign * state.clip;
+    NO_CLIP.push(plane);
+  }
+  scenes.forEach(s => s.traverse(o => { if (o.material) o.material.needsUpdate = true; }));
+  document.querySelectorAll("#bar button[data-axis]").forEach(b => b.classList.toggle("on", b.dataset.axis === state.axis));
+  el("clipv").textContent = state.clip.toFixed(2);
+}
+
+function layout() {
+  const bar = el("bar").getBoundingClientRect().height;
+  const H = innerHeight - bar, W = innerWidth;
+  el("stage").style.height = H + "px";
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setSize(W, H, false);
+}
+
+function frame() {
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  renderer.setScissorTest(true);
+  PANELS.forEach((_, i) => {
+    const x = Math.round((i * W) / 3), w = Math.round(((i + 1) * W) / 3) - x;
+    renderer.setViewport(x, 0, w, H); renderer.setScissor(x, 0, w, H);
+    camera.aspect = w / H; camera.updateProjectionMatrix();
+    renderer.render(scenes[i], camera);
+  });
+  requestAnimationFrame(frame);
+}
+
+// -------------------------------------------------------------------- UI
+const sel = el("part");
+DATA.parts.forEach((p, i) => sel.add(new Option(p.name, i)));
+sel.onchange = () => { state.part = +sel.value; rebuild(); };
+document.querySelectorAll("#bar button[data-axis]").forEach(b => b.onclick = () => { state.axis = b.dataset.axis; applyToggles(); });
+el("clip").oninput = e => { state.clip = +e.target.value; applyToggles(); };
+for (const k of ["flip", "mesh", "err", "prim", "ghost"]) el(k).onchange = e => { state[k] = e.target.checked; applyToggles(); };
+addEventListener("resize", layout);
+
+// #part=name&axis=x&clip=0.1&flip=1&mesh=0&err=1&prim=1&ghost=0&cam=x,y,z  (also used for reproducible screenshots)
+(function fromHash() {
+  const q = new URLSearchParams(location.hash.slice(1));
+  if (q.has("part")) { const i = DATA.parts.findIndex(p => p.name === q.get("part")); if (i >= 0) state.part = i; }
+  if (q.has("axis")) state.axis = q.get("axis");
+  if (q.has("clip")) state.clip = +q.get("clip");
+  for (const k of ["flip", "mesh", "err", "prim", "ghost"]) if (q.has(k)) state[k] = q.get(k) === "1";
+  if (q.has("cam")) camera.position.set(...q.get("cam").split(",").map(Number));
+  sel.value = state.part; el("clip").value = state.clip;
+  for (const k of ["flip", "mesh", "err", "prim", "ghost"]) el(k).checked = state[k];
+})();
+layout(); rebuild(); frame();
+</script>
+</body>
+</html>

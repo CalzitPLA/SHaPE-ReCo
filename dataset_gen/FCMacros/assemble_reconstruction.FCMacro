@@ -1,0 +1,281 @@
+# ================================================================
+# FreeCAD Assembly Macro
+#
+# Combines a reconstruction run's accepted primitives
+# (reco_engine.greedy_reconstruct.PrimitiveResult) into one output
+# STL, in the same coordinate frame as the original input, so it can
+# be opened next to the input file and visually compared.
+#
+# Builds each primitive directly as a real Part solid (Part.makeBox /
+# makeCylinder / makeCone / makeSphere / makeTorus - the exact same
+# formulas and rotation convention as the per-topology FCMacros used
+# for dataset generation and STL construction, read from those macros
+# rather than guessed, so this never diverges from what "topology +
+# parameters + quaternion" actually builds elsewhere in this project),
+# places it at its accepted position/scale, and combines the "add"
+# primitives with real Part boolean fuse operations and the "cut"
+# primitives with a real Part boolean cut - not a mesh reimport/
+# reconstruction and not a mesh-level boolean. An earlier version of
+# this macro rebuilt each primitive by re-importing its already-built
+# STL as a Mesh and converting that to a Part shape
+# (Part.Shape.makeShapeFromMesh) before booleaning; both that and a
+# raw Mesh.Mesh.unite/.difference approach silently produced
+# geometrically wrong volumes on real reconstructed primitives (tori)
+# without raising - building genuine Part solids from their own
+# parameters directly, as done here, avoids the lossy mesh round-trip
+# that caused that in the first place.
+#
+# One deliberate deviation from an existing macro: build_sphere()
+# below does NOT reuse sphere_dataset_learning_CNN.FCMacro's own
+# Part.makeSphere(radius, pnt, dir, 0.0, 360.0, 360.0) call - verified
+# during development that this produces a near-zero-volume degenerate
+# sphere (Volume ~= 5.6e-15, not 4/3*pi*r^3), i.e. that macro has a
+# real, pre-existing bug (angle2 should be 90, FreeCAD's own default
+# for a full sphere, not 360). Flagged separately; not fixed here since
+# it's outside the scope of assembling a comparison STL, but this
+# macro does not replicate it.
+#
+# Interface (env var, matching the DATASET_* macros' convention of
+# passing a JSON payload rather than many separate variables):
+#
+#   ASSEMBLE_MANIFEST_JSON  - path to a JSON file:
+#       {
+#         "add": [{"topology": "...", "parameters": {...},
+#                   "quaternion": [qx,qy,qz,qw],
+#                   "position_mm": [x,y,z], "extent_mm": [x,y,z],
+#                   "scale": f}, ...],   (extent_mm: the footprint the
+#                   solid is stretched to; without it, "scale" is used)
+#         "cut": [... same shape ...],
+#         "output_stl": "...",
+#         "scale_mm": 10.0
+#       }
+#     "cut" may be empty/absent (a purely additive reconstruction).
+#     "scale_mm" matches reco_engine's own REALIZATION_SCALE_MM
+#     convention (the affine ratio -> mm conversion each per-topology
+#     macro uses).
+# ================================================================
+
+import os
+import json
+import math
+import functools
+
+import FreeCAD as App
+import Part
+
+
+def require_env(name):
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"Missing environment variable: {name}")
+    return value
+
+
+# ================================================================
+# QUATERNION -> FREECAD ROTATION
+#
+# Identical conversion to every per-topology FCMacro's own
+# quaternion_to_rotation() (e.g. box_gdml_dataset_learning_CNN.FCMacro):
+# normalize, convert to axis-angle, build App.Rotation(axis, angle_deg)
+# - not the Euler-angle path, since that is not what actually built
+# these primitives' geometry.
+# ================================================================
+
+def quaternion_to_rotation(quaternion):
+    qx, qy, qz, qw = (float(v) for v in quaternion)
+    norm = math.sqrt(qx * qx + qy * qy + qz * qz + qw * qw)
+    if norm < 1e-15:
+        raise RuntimeError("Rotation quaternion has zero length.")
+    qx, qy, qz, qw = qx / norm, qy / norm, qz / norm, qw / norm
+
+    sin_half = math.sqrt(qx * qx + qy * qy + qz * qz)
+    if sin_half < 1e-12:
+        return App.Rotation()
+
+    axis = App.Vector(qx / sin_half, qy / sin_half, qz / sin_half)
+    angle_deg = 2.0 * math.atan2(sin_half, qw) * 180.0 / math.pi
+    return App.Rotation(axis, angle_deg)
+
+
+# ================================================================
+# TOPOLOGY -> PART SHAPE
+#
+# Each builder matches its own FCMacro's create_*() exactly: built
+# centered at / based at the local origin (never translated there),
+# then rotated in place about that same origin - only afterwards is a
+# BoundBox.Center-corrected translation applied (see place_shape) to
+# reach the primitive's real accepted position, the same correction
+# reco_engine/live_pipeline.py already relies on for mesh
+# visualization (a cone's local origin sits at its base center, not
+# its centroid; a sphere's coincides with its own center).
+# ================================================================
+
+def build_box(parameters, scale_mm, rotation):
+    x_half = float(parameters["x_half_ratio"]) * scale_mm
+    y_half = float(parameters["y_half_ratio"]) * scale_mm
+    z_half = float(parameters["z_half_ratio"]) * scale_mm
+    shape = Part.makeBox(2.0 * x_half, 2.0 * y_half, 2.0 * z_half,
+                          App.Vector(-x_half, -y_half, -z_half))
+    shape.Placement = App.Placement(App.Vector(0.0, 0.0, 0.0), rotation)
+    return shape
+
+
+def build_cylinder(parameters, scale_mm, rotation):
+    radius = float(parameters["radius_ratio"]) * scale_mm
+    height = 2.0 * float(parameters["half_length_ratio"]) * scale_mm
+    shape = Part.makeCylinder(radius, height, App.Vector(0.0, 0.0, 0.0), App.Vector(0.0, 0.0, 1.0))
+    shape.Placement = App.Placement(App.Vector(0.0, 0.0, 0.0), rotation)
+    return shape
+
+
+def build_cone(parameters, scale_mm, rotation):
+    radius1 = float(parameters["radius1_ratio"]) * scale_mm
+    radius2 = float(parameters["radius2_ratio"]) * scale_mm
+    height = float(parameters["height_ratio"]) * scale_mm
+    shape = Part.makeCone(radius1, radius2, height, App.Vector(0.0, 0.0, 0.0), App.Vector(0.0, 0.0, 1.0))
+    shape.Placement = App.Placement(App.Vector(0.0, 0.0, 0.0), rotation)
+    return shape
+
+
+def build_sphere(parameters, scale_mm, rotation):
+    radius = float(parameters["radius_ratio"]) * scale_mm
+    # angle1=-90, angle2=90 (full latitude range, south to north pole)
+    # is what actually produces a full sphere - verified directly:
+    # Volume == 4/3*pi*r^3 to float precision only with these values.
+    # NOT (0.0, 360.0, 360.0), what sphere_dataset_learning_CNN.FCMacro's
+    # own create_sphere() passes (near-zero volume, ~5.6e-15 - a real,
+    # pre-existing bug there); NOT (0.0, 90.0, 360.0) either, despite
+    # that matching Part.makeSphere's help text for its "default" -
+    # explicitly passing those values gives a hemisphere (half the
+    # expected volume), not a full sphere, in this FreeCAD version.
+    # See the module docstring.
+    shape = Part.makeSphere(radius, App.Vector(0.0, 0.0, 0.0), App.Vector(0.0, 0.0, 1.0), -90.0, 90.0, 360.0)
+    shape.Placement = App.Placement(App.Vector(0.0, 0.0, 0.0), rotation)
+    return shape
+
+
+def build_torus(parameters, scale_mm, rotation):
+    major_radius = float(parameters["major_radius_ratio"]) * scale_mm
+    minor_radius = float(parameters["minor_radius_ratio"]) * scale_mm
+    angle1 = float(parameters["angle1_deg"])
+    angle2 = float(parameters["angle2_deg"])
+    angle3 = float(parameters["angle3_deg"])
+    shape = Part.makeTorus(major_radius, minor_radius, App.Vector(0.0, 0.0, 0.0), App.Vector(0.0, 0.0, 1.0),
+                            angle1, angle2, angle3)
+    shape.Placement = App.Placement(App.Vector(0.0, 0.0, 0.0), rotation)
+    return shape
+
+
+TOPOLOGY_BUILDERS = {
+    "box": build_box,
+    "cylinder": build_cylinder,
+    "cone": build_cone,
+    "sphere": build_sphere,
+    "torus": build_torus,
+}
+
+
+def build_placed_shape(entry, scale_mm):
+    topology = entry["topology"]
+    builder = TOPOLOGY_BUILDERS.get(topology)
+    if builder is None:
+        raise RuntimeError(
+            f"assemble_reconstruction: no Part-shape builder for topology '{topology}' "
+            f"(supported: {sorted(TOPOLOGY_BUILDERS)}). Add one to this macro if the "
+            f"reconstruction pipeline needs to assemble this topology."
+        )
+
+    rotation = quaternion_to_rotation(entry["quaternion"])
+    shape = builder(entry["parameters"], scale_mm, rotation)
+
+    extent = entry.get("extent_mm")
+    if extent:
+        shape = fit_to_extent(shape, extent)
+    else:
+        # Older manifests carry only the local search's uniform scale
+        # factor, applied about the origin the shape was just built and
+        # rotated about (before any translation to its accepted position).
+        scale = float(entry.get("scale", 1.0))
+        if scale != 1.0:
+            shape.scale(scale, App.Vector(0.0, 0.0, 0.0))
+
+    # Local origin != geometric center in general (a cone's origin
+    # sits at its base center, not its centroid) - read the offset
+    # from this specific shape's own bounding box, same correction
+    # reco_engine/live_pipeline.py relies on for mesh visualization.
+    center = shape.BoundBox.Center
+    target = App.Vector(*entry["position_mm"])
+    shape.Placement = App.Placement(
+        shape.Placement.Base + (target - center), shape.Placement.Rotation)
+    return shape
+
+
+def fit_to_extent(shape, extent_mm):
+    """Stretch `shape` (already rotated) so its axis-aligned bounding
+    box is exactly extent_mm = (x, y, z), about its own bbox center.
+
+    This is the footprint the reconstruction's voxel fit was scored on:
+    reco_engine.placement.place_candidate resizes every candidate to its
+    target's bounding box, so the size the dimension CNN predicted is
+    not what was validated - the extent is. Uniform when the three
+    factors agree (an exact scale); otherwise a general affine stretch
+    (transformGeometry), which turns the surfaces into B-splines but
+    keeps the solid valid for booleans.
+    """
+    box = shape.BoundBox
+    factors = [
+        float(extent_mm[0]) / max(box.XLength, 1e-9),
+        float(extent_mm[1]) / max(box.YLength, 1e-9),
+        float(extent_mm[2]) / max(box.ZLength, 1e-9),
+    ]
+    center = box.Center
+    shape = shape.copy()
+    shape.translate(-center)
+    if max(factors) - min(factors) < 1e-6 * max(factors):
+        shape.scale(factors[0], App.Vector(0.0, 0.0, 0.0))
+        return shape
+    matrix = App.Matrix()
+    matrix.A11, matrix.A22, matrix.A33 = factors
+    return shape.transformGeometry(matrix)
+
+
+def fuse_all(shapes):
+    return functools.reduce(lambda a, b: a.fuse(b), shapes)
+
+
+manifest_path = require_env("ASSEMBLE_MANIFEST_JSON")
+with open(manifest_path, "r", encoding="utf-8") as f:
+    manifest = json.load(f)
+
+add_entries = manifest.get("add", [])
+cut_entries = manifest.get("cut", [])
+output_stl = manifest["output_stl"]
+scale_mm = float(manifest.get("scale_mm", 10.0))
+
+if not add_entries:
+    raise RuntimeError("assemble_reconstruction: no accepted 'add' primitives to assemble.")
+
+add_shapes = [build_placed_shape(e, scale_mm) for e in add_entries]
+assembly = fuse_all(add_shapes)
+
+if cut_entries:
+    cut_shapes = [build_placed_shape(e, scale_mm) for e in cut_entries]
+    assembly = assembly.cut(fuse_all(cut_shapes))
+
+# The voxel grid the reconstruction was scored in is the cube of side
+# scale_mm centered on the origin, and every candidate voxel that fell
+# outside it was clipped away there (place_candidate / local_search).
+# Stretching a candidate to its extent can reach past that cube, so clip
+# the real geometry the same way - otherwise the assembly contains
+# material the fit never accounted for.
+half = scale_mm / 2.0
+assembly = assembly.common(Part.makeBox(scale_mm, scale_mm, scale_mm, App.Vector(-half, -half, -half)))
+
+try:
+    assembly = assembly.removeSplitter()
+except Exception:
+    pass  # cosmetic face-merging cleanup only - fine to skip if it doesn't apply
+
+assembly.exportStl(output_stl)
+print(f"[assemble_reconstruction] wrote: {output_stl} "
+      f"({len(add_entries)} added, {len(cut_entries)} cut, real Part boolean)")

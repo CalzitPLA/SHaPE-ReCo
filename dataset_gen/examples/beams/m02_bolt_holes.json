@@ -1,0 +1,165 @@
+{
+ "name": "m02_bolt_holes",
+ "description": "HEA 300 x 2 m with 4 bolt holes d 22 through both flanges",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "HEA 300",
+   "envelope": "HEA 300",
+   "section": {
+    "h": 290.0,
+    "b": 300.0,
+    "tw": 8.5,
+    "tf": 14.0,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [],
+ "features": [
+  {
+   "op": "cut",
+   "kind": "cylinder",
+   "name": "bolt hole",
+   "d": 22.0,
+   "start": [
+    100,
+    -80,
+    -200
+   ],
+   "end": [
+    100,
+    -80,
+    200
+   ]
+  },
+  {
+   "op": "cut",
+   "kind": "cylinder",
+   "name": "bolt hole",
+   "d": 22.0,
+   "start": [
+    100,
+    80,
+    -200
+   ],
+   "end": [
+    100,
+    80,
+    200
+   ]
+  },
+  {
+   "op": "cut",
+   "kind": "cylinder",
+   "name": "bolt hole",
+   "d": 22.0,
+   "start": [
+    1900,
+    -80,
+    -200
+   ],
+   "end": [
+    1900,
+    -80,
+    200
+   ]
+  },
+  {
+   "op": "cut",
+   "kind": "cylinder",
+   "name": "bolt hole",
+   "d": 22.0,
+   "start": [
+    1900,
+    80,
+    -200
+   ],
+   "end": [
+    1900,
+    80,
+    200
+   ]
+  }
+ ],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "feature": 0
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "feature": 1
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "feature": 2
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "feature": 3
+   }
+  ],
+  "adds": 3,
+  "cuts": 4,
+  "total": 7,
+  "notes": []
+ },
+ "volume_mm3": 22462983.047424614,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 5260,
+ "bbox_min": [
+  0.0,
+  -150.0,
+  -145.0
+ ],
+ "bbox_max": [
+  2000.0,
+  150.0,
+  145.0
+ ],
+ "diagonal_mm": 2043.0614283471753,
+ "stl_deflection_mm": 0.5
+}

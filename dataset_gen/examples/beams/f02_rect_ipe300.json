@@ -1,0 +1,247 @@
+{
+ "name": "f02_rect_ipe300",
+ "description": "rectangular frame of 4 IPE 300 in the xz plane (4 x 3 m), posts between the chords",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "IPE 300",
+   "envelope": "IPE 300",
+   "section": {
+    "h": 300.0,
+    "b": 150.0,
+    "tw": 7.1,
+    "tf": 10.7,
+    "r": 15.0
+   },
+   "start": [
+    -150.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    4150.0,
+    0.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "IPE 300",
+   "envelope": "IPE 300",
+   "section": {
+    "h": 300.0,
+    "b": 150.0,
+    "tw": 7.1,
+    "tf": 10.7,
+    "r": 15.0
+   },
+   "start": [
+    -150.0,
+    0.0,
+    3000.0
+   ],
+   "end": [
+    4150.0,
+    0.0,
+    3000.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "IPE 300",
+   "envelope": "IPE 300",
+   "section": {
+    "h": 300.0,
+    "b": 150.0,
+    "tw": 7.1,
+    "tf": 10.7,
+    "r": 15.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    150.0
+   ],
+   "end": [
+    0.0,
+    0.0,
+    2850.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "IPE 300",
+   "envelope": "IPE 300",
+   "section": {
+    "h": 300.0,
+    "b": 150.0,
+    "tw": 7.1,
+    "tf": 10.7,
+    "r": 15.0
+   },
+   "start": [
+    4000.0,
+    0.0,
+    150.0
+   ],
+   "end": [
+    4000.0,
+    0.0,
+    2850.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "butt",
+   "members": [
+    2,
+    0
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    2,
+    1
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    3,
+    0
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    3,
+    1
+   ]
+  }
+ ],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 3
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 3
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 3
+   }
+  ],
+  "adds": 12,
+  "cuts": 0,
+  "total": 12,
+  "notes": []
+ },
+ "volume_mm3": 75336823.14119117,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 2480,
+ "bbox_min": [
+  -150.00000000000045,
+  -75.0,
+  -150.0
+ ],
+ "bbox_max": [
+  4150.0,
+  75.0,
+  3150.0
+ ],
+ "diagonal_mm": 5422.4072145127575,
+ "stl_deflection_mm": 0.5
+}

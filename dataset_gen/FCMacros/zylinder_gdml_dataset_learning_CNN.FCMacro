@@ -1,0 +1,847 @@
+# -*- coding: utf-8 -*-
+
+# ================================================================
+# FreeCAD Affine Dataset Macro
+# TUBE
+#
+# Dataset-generator interface
+#
+# Expected DATASET_PARAMS_JSON:
+#
+# {
+#     "outer_radius_ratio": 0.6,
+#     "thickness_ratio": 0.15,
+#     "height_ratio": 2.0
+# }
+#
+# Expected DATASET_ROTATION_JSON:
+#
+# [
+#     qx,
+#     qy,
+#     qz,
+#     qw
+# ]
+#
+# Physical realization:
+#
+#     outer_radius = outer_radius_ratio * 10 mm
+#     thickness    = thickness_ratio    * 10 mm
+#     height       = height_ratio       * 10 mm
+#
+#     inner_radius = outer_radius - thickness
+#
+# No translation is used.
+#
+# The tube is generated in canonical position along local Z
+# and then rotated.
+#
+# Geometry:
+#
+#     tube = outer_cylinder - inner_cylinder
+#
+# The temporary FreeCAD objects are deleted after STL export.
+# ================================================================
+
+import os
+import json
+import math
+
+import FreeCAD as App
+import Part
+import MeshPart
+
+
+# ================================================================
+# CONFIGURATION
+# ================================================================
+
+REALIZATION_SCALE_MM = 10.0
+
+LINEAR_DEFLECTION_MM = 0.05
+
+ANGULAR_DEFLECTION_DEG = 5.0
+
+RELATIVE_MESH = False
+
+
+# ================================================================
+# ENVIRONMENT
+# ================================================================
+
+def require_environment_variable(name):
+
+    value = os.environ.get(name)
+
+    if value is None or value.strip() == "":
+        raise RuntimeError(
+            "{} is not defined.".format(name)
+        )
+
+    return value
+
+
+# ================================================================
+# LOAD AFFINE PARAMETERS
+# ================================================================
+
+def load_affine_parameters():
+
+    raw = require_environment_variable(
+        "DATASET_PARAMS_JSON"
+    )
+
+    print("")
+    print("DATASET_PARAMS_JSON:")
+    print(raw)
+
+    try:
+        params = json.loads(raw)
+
+    except Exception as exc:
+        raise RuntimeError(
+            "Invalid DATASET_PARAMS_JSON:\n{}".format(exc)
+        )
+
+    if not isinstance(params, dict):
+        raise RuntimeError(
+            "DATASET_PARAMS_JSON must contain a JSON object."
+        )
+
+    # ------------------------------------------------------------
+    # Support:
+    #
+    # {
+    #     "outer_radius_ratio": ...,
+    #     "thickness_ratio": ...,
+    #     "height_ratio": ...
+    # }
+    #
+    # and:
+    #
+    # {
+    #     "affine": {
+    #         ...
+    #     }
+    # }
+    # ------------------------------------------------------------
+
+    if "affine" in params:
+
+        affine = params["affine"]
+
+        if not isinstance(affine, dict):
+            raise RuntimeError(
+                "'affine' must be a JSON object."
+            )
+
+        return affine
+
+    return params
+
+
+# ================================================================
+# LOAD ROTATION
+# ================================================================
+
+def load_rotation():
+
+    rotation_raw = os.environ.get(
+        "DATASET_ROTATION_JSON"
+    )
+
+    if rotation_raw is not None:
+
+        if rotation_raw.strip() == "":
+            raise RuntimeError(
+                "DATASET_ROTATION_JSON is empty."
+            )
+
+        print("")
+        print("DATASET_ROTATION_JSON:")
+        print(rotation_raw)
+
+        try:
+            rotation = json.loads(rotation_raw)
+
+        except Exception as exc:
+            raise RuntimeError(
+                "Invalid DATASET_ROTATION_JSON:\n{}".format(exc)
+            )
+
+        return rotation
+
+    # ------------------------------------------------------------
+    # Backwards compatibility:
+    #
+    # Rotation may also be contained in DATASET_PARAMS_JSON.
+    # ------------------------------------------------------------
+
+    raw = os.environ.get(
+        "DATASET_PARAMS_JSON"
+    )
+
+    if raw is not None:
+
+        try:
+            params = json.loads(raw)
+
+        except Exception:
+            params = {}
+
+        if isinstance(params, dict):
+
+            if "rotation" in params:
+                return params["rotation"]
+
+            if "affine" in params:
+
+                affine = params["affine"]
+
+                if isinstance(affine, dict):
+
+                    if "rotation" in affine:
+                        return affine["rotation"]
+
+    raise RuntimeError(
+        "Missing rotation parameter.\n"
+        "Expected DATASET_ROTATION_JSON."
+    )
+
+
+# ================================================================
+# FLOAT PARAMETER
+# ================================================================
+
+def get_float(params, name):
+
+    if name not in params:
+        raise RuntimeError(
+            "Missing affine parameter: {}\n"
+            "Received: {}".format(
+                name,
+                params
+            )
+        )
+
+    try:
+
+        return float(
+            params[name]
+        )
+
+    except Exception:
+
+        raise RuntimeError(
+            "Affine parameter '{}' must be numeric.".format(
+                name
+            )
+        )
+
+
+# ================================================================
+# AFFINE -> PHYSICAL REALIZATION
+# ================================================================
+
+def realize_cylinder_dimensions(affine):
+
+    # ------------------------------------------------------------
+    # IMPORTANT:
+    #
+    # The dataset generator uses:
+    #
+    # outer_radius_ratio
+    # thickness_ratio
+    # height_ratio
+    #
+    # Do NOT use radius_ratio here.
+    # ------------------------------------------------------------
+
+    radius_ratio = get_float(
+        affine,
+        "radius_ratio"
+    )
+    
+    half_length_ratio = get_float(
+        affine,
+        "half_length_ratio"
+    )
+    
+  
+
+    # ------------------------------------------------------------
+    # Validate affine parameters.
+    # ------------------------------------------------------------
+    
+    if radius_ratio <= 0.0:
+
+        raise RuntimeError(
+            "radius_ratio must be > 0."
+        )
+
+    if half_length_ratio <= 0.0:
+
+        raise RuntimeError(
+            "half_length_ratio must be > 0."
+        )
+
+
+    # ------------------------------------------------------------
+    # Dimensional realization.
+    # ------------------------------------------------------------
+
+    radius_ratio_mm = (
+        radius_ratio
+        * REALIZATION_SCALE_MM
+    )
+
+
+    height_mm = (
+        half_length_ratio * 2
+        * REALIZATION_SCALE_MM
+    )
+
+
+    return (
+        radius_ratio_mm,
+        height_mm
+    )
+
+
+# ================================================================
+# QUATERNION -> FREECAD ROTATION
+# ================================================================
+
+def quaternion_to_rotation(quaternion):
+
+    if quaternion is None:
+
+        raise RuntimeError(
+            "Rotation is None."
+        )
+
+    if not isinstance(
+        quaternion,
+        (list, tuple)
+    ):
+
+        raise RuntimeError(
+            "Rotation must be a list "
+            "[qx, qy, qz, qw]."
+        )
+
+    if len(quaternion) != 4:
+
+        raise RuntimeError(
+            "Rotation must contain exactly four values: "
+            "[qx, qy, qz, qw]."
+        )
+
+    try:
+
+        qx = float(
+            quaternion[0]
+        )
+
+        qy = float(
+            quaternion[1]
+        )
+
+        qz = float(
+            quaternion[2]
+        )
+
+        qw = float(
+            quaternion[3]
+        )
+
+    except Exception:
+
+        raise RuntimeError(
+            "Quaternion components must be numeric."
+        )
+
+    # ------------------------------------------------------------
+    # Normalize quaternion.
+    # ------------------------------------------------------------
+
+    norm = math.sqrt(
+        qx * qx
+        + qy * qy
+        + qz * qz
+        + qw * qw
+    )
+
+    if norm < 1e-15:
+
+        raise RuntimeError(
+            "Rotation quaternion has zero length."
+        )
+
+    qx /= norm
+    qy /= norm
+    qz /= norm
+    qw /= norm
+
+    # ------------------------------------------------------------
+    # Quaternion -> axis-angle.
+    # ------------------------------------------------------------
+
+    sin_half = math.sqrt(
+        qx * qx
+        + qy * qy
+        + qz * qz
+    )
+
+    # ------------------------------------------------------------
+    # Identity rotation.
+    # ------------------------------------------------------------
+
+    if sin_half < 1e-12:
+
+        return App.Rotation()
+
+    axis = App.Vector(
+        qx / sin_half,
+        qy / sin_half,
+        qz / sin_half
+    )
+
+    angle_rad = (
+        2.0
+        * math.atan2(
+            sin_half,
+            qw
+        )
+    )
+
+    angle_deg = (
+        angle_rad
+        * 180.0
+        / math.pi
+    )
+
+    return App.Rotation(
+        axis,
+        angle_deg
+    )
+
+
+# ================================================================
+# CREATE TUBE
+# ================================================================
+
+def create_cylinder(
+    radius_ratio_mm,
+    height_mm,
+    rotation
+):
+
+    doc = App.activeDocument()
+
+    if doc is None:
+
+        doc = App.newDocument(
+            "AffineTubeDataset"
+        )
+
+    # ------------------------------------------------------------
+    # cylinder.
+    #
+    # FreeCAD cylinders are created along local +Z.
+    # ------------------------------------------------------------
+    
+    
+   
+    cylinder = doc.addObject(
+        "Part::Cylinder",
+        "DatasetTubeOuter"
+    )
+
+    cylinder.Radius = float(
+        radius_ratio_mm
+    )
+
+    cylinder.Height = float(
+        height_mm
+    )
+
+    # ------------------------------------------------------------
+    # Apply identical placement to both cylinders.
+    #
+    # No translation is used.
+    # ------------------------------------------------------------
+
+    placement = App.Placement(
+        App.Vector(
+            0.0,
+            0.0,
+            0.0
+        ),
+        rotation
+    )
+
+    cylinder.Placement = placement
+
+    doc.recompute()
+
+    # ------------------------------------------------------------
+    # Check source shapes.
+    # ------------------------------------------------------------
+
+    if cylinder.Shape.isNull():
+
+        raise RuntimeError(
+            "FreeCAD created a null outer cylinder."
+        )
+
+
+
+    # ------------------------------------------------------------
+    # Return all temporary objects so they can be removed
+    # by the caller.
+    # ------------------------------------------------------------
+
+    return (
+        doc,
+        cylinder.Shape
+    )
+
+
+# ================================================================
+# STL EXPORT
+# ================================================================
+
+def export_shape_as_stl(
+    shape,
+    output_path
+):
+
+    if shape is None:
+
+        raise RuntimeError(
+            "Cannot export a null shape."
+        )
+
+    if shape.isNull():
+
+        raise RuntimeError(
+            "Cannot export a null/empty FreeCAD shape."
+        )
+
+    # ------------------------------------------------------------
+    # Create output directory.
+    # ------------------------------------------------------------
+
+    output_dir = os.path.dirname(
+        output_path
+    )
+
+    if output_dir:
+
+        os.makedirs(
+            output_dir,
+            exist_ok=True
+        )
+
+    # ------------------------------------------------------------
+    # Remove previous STL.
+    #
+    # This prevents an old STL from being mistaken for a
+    # successful export.
+    # ------------------------------------------------------------
+
+    if os.path.exists(output_path):
+
+        try:
+
+            os.remove(
+                output_path
+            )
+
+        except Exception as exc:
+
+            raise RuntimeError(
+                "Could not remove existing STL '{}': {}".format(
+                    output_path,
+                    exc
+                )
+            )
+
+    # ------------------------------------------------------------
+    # Convert degrees -> radians.
+    # ------------------------------------------------------------
+
+    angular_rad = (
+        ANGULAR_DEFLECTION_DEG
+        * math.pi
+        / 180.0
+    )
+
+    # ------------------------------------------------------------
+    # Generate mesh.
+    # ------------------------------------------------------------
+
+    mesh = MeshPart.meshFromShape(
+        Shape=shape,
+        LinearDeflection=LINEAR_DEFLECTION_MM,
+        AngularDeflection=angular_rad,
+        Relative=RELATIVE_MESH
+    )
+
+    if mesh is None:
+
+        raise RuntimeError(
+            "MeshPart.meshFromShape() returned None."
+        )
+
+    if mesh.CountFacets <= 0:
+
+        raise RuntimeError(
+            "Generated mesh contains zero facets."
+        )
+
+    # ------------------------------------------------------------
+    # Write STL.
+    # ------------------------------------------------------------
+
+    mesh.write(
+        output_path
+    )
+
+    # ------------------------------------------------------------
+    # Verify STL.
+    # ------------------------------------------------------------
+
+    if not os.path.isfile(
+        output_path
+    ):
+
+        raise RuntimeError(
+            "STL was not created:\n{}".format(
+                output_path
+            )
+        )
+
+    size = os.path.getsize(
+        output_path
+    )
+
+    if size <= 0:
+
+        raise RuntimeError(
+            "STL file is empty:\n{}".format(
+                output_path
+            )
+        )
+
+    print("")
+    print(
+        "STL created successfully:"
+    )
+
+    print(
+        "  {}".format(
+            output_path
+        )
+    )
+
+    print(
+        "  {} bytes".format(
+            size
+        )
+    )
+
+    print(
+        "  {} facets".format(
+            mesh.CountFacets
+        )
+    )
+
+
+# ================================================================
+# MAIN
+# ================================================================
+
+def main():
+
+    print("")
+    print(
+        "============================================================"
+    )
+
+    print(
+        "AFFINE TUBE DATASET MACRO"
+    )
+
+    print(
+        "============================================================"
+    )
+
+    print(
+        "Physical realization scale =",
+        REALIZATION_SCALE_MM,
+        "mm"
+    )
+
+
+    # ------------------------------------------------------------
+    # Load affine parameters.
+    # ------------------------------------------------------------
+
+    affine = load_affine_parameters()
+
+    print("")
+    print(
+        "Affine parameters:"
+    )
+
+    print(
+        json.dumps(
+            affine,
+            indent=2
+        )
+    )
+
+    # ------------------------------------------------------------
+    # Load rotation independently.
+    # ------------------------------------------------------------
+
+    quaternion = load_rotation()
+
+    print("")
+    print(
+        "Rotation:"
+    )
+
+    print(
+        quaternion
+    )
+
+    # ------------------------------------------------------------
+    # Output STL.
+    # ------------------------------------------------------------
+
+    output_path = require_environment_variable(
+        "DATASET_OUT_STL"
+    )
+
+    print("")
+    print(
+        "Output STL:"
+    )
+
+    print(
+        output_path
+    )
+
+    # ------------------------------------------------------------
+    # Realize affine geometry.
+    # ------------------------------------------------------------
+
+    (
+        radius_ratio_mm,
+        height_mm
+    ) = realize_cylinder_dimensions(
+        affine
+    )
+
+    print("")
+    print(
+        "Physical realization:"
+    )
+
+    print(
+        "  radius_ratio =",
+        radius_ratio_mm,
+        "mm"
+    )
+
+
+    print(
+        "  height       =",
+        height_mm,
+        "mm"
+    )
+
+    # ------------------------------------------------------------
+    # Convert quaternion.
+    # ------------------------------------------------------------
+
+    rotation = quaternion_to_rotation(
+        quaternion
+    )
+
+    # ------------------------------------------------------------
+    # Create tube.
+    # ------------------------------------------------------------
+
+    (
+        doc,
+        cylinder_shape
+    ) = create_cylinder(
+        radius_ratio_mm=radius_ratio_mm,  
+        height_mm=height_mm,
+        rotation=rotation
+    )
+
+    try:
+
+        # --------------------------------------------------------
+        # Export STL.
+        # --------------------------------------------------------
+
+        export_shape_as_stl(
+            shape=cylinder_shape,
+            output_path=output_path
+        )
+
+
+    finally:
+
+        # --------------------------------------------------------
+        # Remove cylinder.
+        # --------------------------------------------------------
+
+        try:
+
+            doc.removeObject(
+                cylinder.Name
+            )
+
+        except Exception:
+            pass
+
+        # --------------------------------------------------------
+        # Recompute after deletion.
+        # --------------------------------------------------------
+
+        try:
+
+            doc.recompute()
+
+        except Exception:
+            pass
+
+        # --------------------------------------------------------
+        # Close document.
+        # --------------------------------------------------------
+
+        try:
+
+            App.closeDocument(
+                doc.Name
+            )
+
+        except Exception:
+            pass
+             
+        print("Tube sample completed successfully.")
+# ================================================================
+# RUN
+# ================================================================
+
+if __name__ == "__main__":
+
+    main()
+

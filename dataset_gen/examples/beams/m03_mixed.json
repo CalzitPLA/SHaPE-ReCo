@@ -1,0 +1,187 @@
+{
+ "name": "m03_mixed",
+ "description": "mixed profiles: HEB 200 and HEB 300 posts (2.5 m) under an IPE 300 girder",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "HEB 200",
+   "envelope": "HEB 200",
+   "section": {
+    "h": 200.0,
+    "b": 200.0,
+    "tw": 9.0,
+    "tf": 15.0,
+    "r": 18.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    0.0,
+    2500.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEB 300",
+   "envelope": "HEB 300",
+   "section": {
+    "h": 300.0,
+    "b": 300.0,
+    "tw": 11.0,
+    "tf": 19.0,
+    "r": 27.0
+   },
+   "start": [
+    3000.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    3000.0,
+    0.0,
+    2500.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "IPE 300",
+   "envelope": "IPE 300",
+   "section": {
+    "h": 300.0,
+    "b": 150.0,
+    "tw": 7.1,
+    "tf": 10.7,
+    "r": 15.0
+   },
+   "start": [
+    -100.0,
+    0.0,
+    2650.0
+   ],
+   "end": [
+    3150.0,
+    0.0,
+    2650.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "butt",
+   "members": [
+    0,
+    2
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    1,
+    2
+   ]
+  }
+ ],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   }
+  ],
+  "adds": 9,
+  "cuts": 0,
+  "total": 9,
+  "notes": []
+ },
+ "volume_mm3": 74285862.71148753,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 1924,
+ "bbox_min": [
+  -100.00000000000045,
+  -150.0,
+  0.0
+ ],
+ "bbox_max": [
+  3150.0,
+  150.0,
+  2800.0
+ ],
+ "diagonal_mm": 4300.290687848905,
+ "stl_deflection_mm": 0.5
+}

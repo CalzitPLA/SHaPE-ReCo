@@ -1,0 +1,543 @@
+{
+ "name": "t02_space_frame",
+ "description": "space frame: the 12 edges of a 2 x 1.5 x 1 m box, CHS tubes (x 88.9x5, y 76.1x5, z 101.6x5)",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "tube",
+   "profile": "CHS 101.6x5",
+   "section": {
+    "d": 101.6,
+    "t": 5
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    0.0,
+    1000.0
+   ],
+   "up": null,
+   "ext": [
+    50.8,
+    50.8
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 76.1x5",
+   "section": {
+    "d": 76.1,
+    "t": 5
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    1500.0,
+    0.0
+   ],
+   "up": null,
+   "ext": [
+    38.05,
+    38.05
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 88.9x5",
+   "section": {
+    "d": 88.9,
+    "t": 5
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "up": null,
+   "ext": [
+    44.45,
+    44.45
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 76.1x5",
+   "section": {
+    "d": 76.1,
+    "t": 5
+   },
+   "start": [
+    0.0,
+    0.0,
+    1000.0
+   ],
+   "end": [
+    0.0,
+    1500.0,
+    1000.0
+   ],
+   "up": null,
+   "ext": [
+    38.05,
+    38.05
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 88.9x5",
+   "section": {
+    "d": 88.9,
+    "t": 5
+   },
+   "start": [
+    0.0,
+    0.0,
+    1000.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    1000.0
+   ],
+   "up": null,
+   "ext": [
+    44.45,
+    44.45
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 101.6x5",
+   "section": {
+    "d": 101.6,
+    "t": 5
+   },
+   "start": [
+    0.0,
+    1500.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    1500.0,
+    1000.0
+   ],
+   "up": null,
+   "ext": [
+    50.8,
+    50.8
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 88.9x5",
+   "section": {
+    "d": 88.9,
+    "t": 5
+   },
+   "start": [
+    0.0,
+    1500.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    1500.0,
+    0.0
+   ],
+   "up": null,
+   "ext": [
+    44.45,
+    44.45
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 88.9x5",
+   "section": {
+    "d": 88.9,
+    "t": 5
+   },
+   "start": [
+    0.0,
+    1500.0,
+    1000.0
+   ],
+   "end": [
+    2000.0,
+    1500.0,
+    1000.0
+   ],
+   "up": null,
+   "ext": [
+    44.45,
+    44.45
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 101.6x5",
+   "section": {
+    "d": 101.6,
+    "t": 5
+   },
+   "start": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    1000.0
+   ],
+   "up": null,
+   "ext": [
+    50.8,
+    50.8
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 76.1x5",
+   "section": {
+    "d": 76.1,
+    "t": 5
+   },
+   "start": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    1500.0,
+    0.0
+   ],
+   "up": null,
+   "ext": [
+    38.05,
+    38.05
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 76.1x5",
+   "section": {
+    "d": 76.1,
+    "t": 5
+   },
+   "start": [
+    2000.0,
+    0.0,
+    1000.0
+   ],
+   "end": [
+    2000.0,
+    1500.0,
+    1000.0
+   ],
+   "up": null,
+   "ext": [
+    38.05,
+    38.05
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  },
+  {
+   "kind": "tube",
+   "profile": "CHS 101.6x5",
+   "section": {
+    "d": 101.6,
+    "t": 5
+   },
+   "start": [
+    2000.0,
+    1500.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    1500.0,
+    1000.0
+   ],
+   "up": null,
+   "ext": [
+    50.8,
+    50.8
+   ],
+   "inner_ext": [
+    15.0,
+    15.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "node",
+   "members": [
+    0,
+    1,
+    2
+   ]
+  },
+  {
+   "type": "node",
+   "members": [
+    0,
+    3,
+    4
+   ]
+  },
+  {
+   "type": "node",
+   "members": [
+    1,
+    5,
+    6
+   ]
+  },
+  {
+   "type": "node",
+   "members": [
+    3,
+    5,
+    7
+   ]
+  },
+  {
+   "type": "node",
+   "members": [
+    2,
+    8,
+    9
+   ]
+  },
+  {
+   "type": "node",
+   "members": [
+    4,
+    8,
+    10
+   ]
+  },
+  {
+   "type": "node",
+   "members": [
+    6,
+    9,
+    11
+   ]
+  },
+  {
+   "type": "node",
+   "members": [
+    7,
+    10,
+    11
+   ]
+  }
+ ],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 0
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 1
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 2
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 3
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 3
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 4
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 4
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 5
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 5
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 6
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 6
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 7
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 7
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 8
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 8
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 9
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 9
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 10
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 10
+   },
+   {
+    "op": "add",
+    "kind": "cylinder",
+    "member": 11
+   },
+   {
+    "op": "cut",
+    "kind": "cylinder",
+    "member": 11
+   }
+  ],
+  "adds": 12,
+  "cuts": 12,
+  "total": 24,
+  "notes": []
+ },
+ "volume_mm3": 24008155.956843566,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 18668,
+ "bbox_min": [
+  -50.8,
+  -50.8,
+  -50.799999999999955
+ ],
+ "bbox_max": [
+  2050.8,
+  1550.8,
+  1050.8
+ ],
+ "diagonal_mm": 2862.7552602344476,
+ "stl_deflection_mm": 0.5
+}

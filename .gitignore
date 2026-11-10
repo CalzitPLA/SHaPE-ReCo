@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Model checkpoints & training artifacts (large binaries)
+checkpoints/
+checkpoints_*/
+*.pth
+*.pt
+runs/
+
+# Generated datasets (STL/GDML/voxel bins, manifests) - reproducible via dataset_gen
+FCMacros/dataset/
+FCMacros/src/dataset/
+dataset_gen/test_output/
+dataset_gen/test_output_rotation/
+dataset_gen/local_dataset*/
+**/dataset/bins/
+**/dataset/stl/
+**/dataset/parameters/
+*.bin
+
+# Generated reconstruction output
+SHaPe_Reco_Dashboard/output/
+work/
+
+# Build artifacts
+build/
+CMakeCache.txt
+CMakeFiles/
+
+# LaTeX build artifacts (keep the .tex source and the compiled .pdf)
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+
+# Archives
+*.tar.xz
+*.zip
+
+# FreeCAD backup files
+*.FCBak
+
+# OS / editor cruft
+.DS_Store
+*.swp
+
+# Cached SDF network inputs (training/sdf_input.py) - reproducible
+sdf_cache*/
+
+# Cached exact vector-field network inputs (training/exact_field_input.py) - reproducible, expensive to rebuild
+field_cache/
+
+# Archived pre-rewrite prototypes (FeatureNet fork etc., some with their own nested .git) - not part of this project's history
+archiv/
+
+# More LaTeX build artifacts (bibtex/biber, lists, PostScript)
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.lof
+*.lot
+*.ps
+*.xdv
+
+# Compiled full thesis (13 MB each, rebuilt from docs/thesis/*.tex) and fitted descriptor models (binary, reproducible)
+docs/thesis/main.pdf
+docs/thesis/main_text.pdf
+docs/thesis/SHaPe_ReCo_thesis.pdf
+models/*.joblib
+
+# Personal Claude Code overrides
+.claude/settings.local.json

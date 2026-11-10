@@ -1,0 +1,699 @@
+{
+ "name": "f04_frame_quarter",
+ "description": "Frame_4_x_6 layout at 1/4 span (1675 x 1245 mm, 2 layers 700 mm apart): HEA 500 chords, posts 350x300x12x17.5 (HEA 360 envelope, 12 mm web), 4 HEA 500 cross members",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": null,
+   "envelope": "HEA 360",
+   "section": {
+    "h": 350.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 17.5,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    175.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    175.0,
+    1245.0
+   ],
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": null,
+   "envelope": "HEA 360",
+   "section": {
+    "h": 350.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 17.5,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    1500.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    1500.0,
+    1245.0
+   ],
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    350.0,
+    245.0
+   ],
+   "end": [
+    0.0,
+    1325.0,
+    245.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    350.0,
+    1000.0
+   ],
+   "end": [
+    0.0,
+    1325.0,
+    1000.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": null,
+   "envelope": "HEA 360",
+   "section": {
+    "h": 350.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 17.5,
+    "r": 27.0
+   },
+   "start": [
+    700.0,
+    175.0,
+    0.0
+   ],
+   "end": [
+    700.0,
+    175.0,
+    1245.0
+   ],
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": null,
+   "envelope": "HEA 360",
+   "section": {
+    "h": 350.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 17.5,
+    "r": 27.0
+   },
+   "start": [
+    700.0,
+    1500.0,
+    0.0
+   ],
+   "end": [
+    700.0,
+    1500.0,
+    1245.0
+   ],
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    700.0,
+    350.0,
+    245.0
+   ],
+   "end": [
+    700.0,
+    1325.0,
+    245.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    700.0,
+    350.0,
+    1000.0
+   ],
+   "end": [
+    700.0,
+    1325.0,
+    1000.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    6.0,
+    175.0,
+    245.0
+   ],
+   "end": [
+    694.0,
+    175.0,
+    245.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    6.0,
+    175.0,
+    1000.0
+   ],
+   "end": [
+    694.0,
+    175.0,
+    1000.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    6.0,
+    1500.0,
+    245.0
+   ],
+   "end": [
+    694.0,
+    1500.0,
+    245.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 500",
+   "envelope": "HEA 500",
+   "section": {
+    "h": 490.0,
+    "b": 300.0,
+    "tw": 12.0,
+    "tf": 23.0,
+    "r": 27.0
+   },
+   "start": [
+    6.0,
+    1500.0,
+    1000.0
+   ],
+   "end": [
+    694.0,
+    1500.0,
+    1000.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    1.0,
+    1.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "butt",
+   "members": [
+    2,
+    0
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    2,
+    1
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    3,
+    0
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    3,
+    1
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    6,
+    4
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    6,
+    5
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    7,
+    4
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    7,
+    5
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    8,
+    0
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    8,
+    4
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    9,
+    0
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    9,
+    4
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    10,
+    1
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    10,
+    5
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    11,
+    1
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    11,
+    5
+   ]
+  }
+ ],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 3
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 3
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 3
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 4
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 4
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 4
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 5
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 5
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 5
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 6
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 6
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 6
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 7
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 7
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 7
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 8
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 8
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 8
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 9
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 9
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 9
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 10
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 10
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 10
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 11
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 11
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 11
+   }
+  ],
+  "adds": 36,
+  "cuts": 0,
+  "total": 36,
+  "notes": []
+ },
+ "volume_mm3": 205595921.6712532,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 8672,
+ "bbox_min": [
+  -150.0,
+  0.0,
+  0.0
+ ],
+ "bbox_max": [
+  850.0,
+  1675.0,
+  1245.0
+ ],
+ "diagonal_mm": 2314.227732959745,
+ "stl_deflection_mm": 0.5
+}

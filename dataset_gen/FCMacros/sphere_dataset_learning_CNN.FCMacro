@@ -1,0 +1,791 @@
+# -*- coding: utf-8 -*-
+
+"""
+FreeCAD macro for affine sphere dataset generation.
+
+Dataset generator / GUI parameters are supplied through environment
+variables.
+
+Required affine parameter:
+
+    RADIUS_RATIO
+    or
+    SPHERE_RADIUS_RATIO
+    or
+    radius_ratio
+
+Required output:
+
+    OUTPUT_STL
+
+Optional:
+
+    PHYSICAL_SCALE
+        Default: 10.0
+
+    ROT_X_DEG
+    ROT_Y_DEG
+    ROT_Z_DEG
+        Default: 0.0
+
+    TRANSLATION_X
+    TRANSLATION_Y
+    TRANSLATION_Z
+        Default: 0.0
+
+    LINEAR_DEFLECTION
+        Default: 0.10
+
+    ANGULAR_DEFLECTION_DEG
+        Default: 5.0
+
+The sphere is created with Part.makeSphere(), optionally transformed
+using the supplied placement, and exported directly to STL using
+MeshPart.
+
+No GUI operations are required.
+
+The temporary FreeCAD object is deleted after export.
+"""
+
+
+import os
+import json
+import math
+
+import FreeCAD as App
+import Part
+import MeshPart
+
+
+# ================================================================
+# CONFIGURATION
+# ================================================================
+
+REALIZATION_SCALE_MM = 10.0
+
+LINEAR_DEFLECTION_MM = 0.05
+
+ANGULAR_DEFLECTION_DEG = 5.0
+
+RELATIVE_MESH = False
+
+
+# ================================================================
+# ENVIRONMENT
+# ================================================================
+
+def require_environment_variable(name):
+
+    value = os.environ.get(name)
+
+    if value is None or value.strip() == "":
+
+        raise RuntimeError(
+            "{} is not defined.".format(name)
+        )
+
+    return value
+
+
+# ================================================================
+# LOAD AFFINE PARAMETERS
+# ================================================================
+
+def load_affine_parameters():
+
+    raw = require_environment_variable(
+        "DATASET_PARAMS_JSON"
+    )
+
+    print("")
+    print(
+        "DATASET_PARAMS_JSON:"
+    )
+
+    print(
+        raw
+    )
+
+    try:
+
+        params = json.loads(
+            raw
+        )
+
+    except Exception as exc:
+
+        raise RuntimeError(
+            "Invalid DATASET_PARAMS_JSON:\n"
+            + str(exc)
+        )
+
+    if not isinstance(
+        params,
+        dict
+    ):
+
+        raise RuntimeError(
+            "DATASET_PARAMS_JSON must contain "
+            "a JSON object."
+        )
+
+    # ------------------------------------------------------------
+    # Support both:
+    #
+    # {
+    #     "x_half_ratio": ...,
+    #     "y_half_ratio": ...,
+    #     "z_half_ratio": ...
+    # }
+    #
+    # and:
+    #
+    # {
+    #     "affine": {
+    #         "x_half_ratio": ...,
+    #         "y_half_ratio": ...,
+    #         "z_half_ratio": ...
+    #     }
+    # }
+    # ------------------------------------------------------------
+
+    if "affine" in params:
+
+        affine = params["affine"]
+
+        if not isinstance(
+            affine,
+            dict
+        ):
+
+            raise RuntimeError(
+                "'affine' must be a JSON object."
+            )
+
+        return affine
+
+    return params
+
+
+# ================================================================
+# LOAD ROTATION
+# ================================================================
+
+def load_rotation():
+
+    # ------------------------------------------------------------
+    # Preferred interface:
+    #
+    # DATASET_ROTATION_JSON
+    # ------------------------------------------------------------
+
+    rotation_raw = os.environ.get(
+        "DATASET_ROTATION_JSON"
+    )
+
+    if rotation_raw is not None:
+
+        if rotation_raw.strip() == "":
+
+            raise RuntimeError(
+                "DATASET_ROTATION_JSON is empty."
+            )
+
+        print("")
+        print(
+            "DATASET_ROTATION_JSON:"
+        )
+
+        print(
+            rotation_raw
+        )
+
+        try:
+
+            rotation = json.loads(
+                rotation_raw
+            )
+
+        except Exception as exc:
+
+            raise RuntimeError(
+                "Invalid DATASET_ROTATION_JSON:\n"
+                + str(exc)
+            )
+
+        return rotation
+
+    # ------------------------------------------------------------
+    # Backwards compatibility:
+    #
+    # Allow rotation inside DATASET_PARAMS_JSON.
+    # ------------------------------------------------------------
+
+    raw = os.environ.get(
+        "DATASET_PARAMS_JSON"
+    )
+
+    if raw is not None:
+
+        try:
+
+            params = json.loads(
+                raw
+            )
+
+        except Exception:
+
+            params = {}
+
+        if isinstance(
+            params,
+            dict
+        ):
+
+            if "rotation" in params:
+
+                return params["rotation"]
+
+            if "affine" in params:
+
+                affine = params["affine"]
+
+                if isinstance(
+                    affine,
+                    dict
+                ):
+
+                    if "rotation" in affine:
+
+                        return affine["rotation"]
+
+    # ------------------------------------------------------------
+    # Dataset interface uses independent rotation.
+    # ------------------------------------------------------------
+
+    raise RuntimeError(
+        "Missing rotation parameter.\n"
+        "Expected DATASET_ROTATION_JSON."
+    )
+
+
+# ================================================================
+# FLOAT PARAMETER
+# ================================================================
+
+def get_float(
+    params,
+    name
+):
+
+    if name not in params:
+
+        raise RuntimeError(
+            "Missing affine parameter: {}\n"
+            "Received: {}".format(
+                name,
+                params
+            )
+        )
+
+    try:
+
+        value = float(
+            params[name]
+        )
+
+    except Exception:
+
+        raise RuntimeError(
+            "Affine parameter '{}' "
+            "must be numeric.".format(name)
+        )
+
+    if not math.isfinite(value):
+
+        raise RuntimeError(
+            "Affine parameter '{}' "
+            "must be finite.".format(name)
+        )
+
+    return value
+
+
+# ================================================================
+# AFFINE -> PHYSICAL REALIZATION
+# ================================================================
+
+def realize_box_dimensions(
+    affine
+):
+
+    radius_ratio = get_float(
+        affine,
+        "radius_ratio"
+    )
+
+    # ------------------------------------------------------------
+    # Validate.
+    # ------------------------------------------------------------
+
+    if radius_ratio <= 0.0:
+
+        raise RuntimeError(
+            "radius_ratio must be > 0."
+        )
+
+
+
+
+    return (
+        radius_ratio
+    )
+
+
+# ================================================================
+# QUATERNION -> FREECAD ROTATION
+# ================================================================
+
+def quaternion_to_rotation(
+    quaternion
+):
+
+    if quaternion is None:
+
+        raise RuntimeError(
+            "Rotation is None."
+        )
+
+    if not isinstance(
+        quaternion,
+        (list, tuple)
+    ):
+
+        raise RuntimeError(
+            "Rotation must be a list "
+            "[qx, qy, qz, qw]."
+        )
+
+    if len(quaternion) != 4:
+
+        raise RuntimeError(
+            "Rotation must contain exactly "
+            "four values: [qx, qy, qz, qw]."
+        )
+
+    try:
+
+        qx = float(
+            quaternion[0]
+        )
+
+        qy = float(
+            quaternion[1]
+        )
+
+        qz = float(
+            quaternion[2]
+        )
+
+        qw = float(
+            quaternion[3]
+        )
+
+    except Exception:
+
+        raise RuntimeError(
+            "Quaternion components must be numeric."
+        )
+
+    # ------------------------------------------------------------
+    # Validate finite values.
+    # ------------------------------------------------------------
+
+    components = (
+        qx,
+        qy,
+        qz,
+        qw
+    )
+
+    for value in components:
+
+        if not math.isfinite(value):
+
+            raise RuntimeError(
+                "Quaternion components must be finite."
+            )
+
+    # ------------------------------------------------------------
+    # Normalize quaternion.
+    # ------------------------------------------------------------
+
+    norm = math.sqrt(
+        qx * qx
+        + qy * qy
+        + qz * qz
+        + qw * qw
+    )
+
+    if norm < 1e-15:
+
+        raise RuntimeError(
+            "Rotation quaternion has zero length."
+        )
+
+    qx /= norm
+    qy /= norm
+    qz /= norm
+    qw /= norm
+
+    # ------------------------------------------------------------
+    # Quaternion -> axis-angle.
+    # ------------------------------------------------------------
+
+    sin_half = math.sqrt(
+        qx * qx
+        + qy * qy
+        + qz * qz
+    )
+
+    # Identity rotation.
+
+    if sin_half < 1e-12:
+
+        return App.Rotation()
+
+    axis = App.Vector(
+        qx / sin_half,
+        qy / sin_half,
+        qz / sin_half
+    )
+
+    angle_rad = (
+        2.0
+        * math.atan2(
+            sin_half,
+            qw
+        )
+    )
+
+    angle_deg = (
+        angle_rad
+        * 180.0
+        / math.pi
+    )
+
+    return App.Rotation(
+        axis,
+        angle_deg
+    )
+
+
+# ================================================================
+# CREATE BOX
+# ================================================================
+
+def create_sphere(
+    radius_ratio,
+    rotation
+):
+        # --------------------------------------------------------------------
+        # Create sphere
+        # --------------------------------------------------------------------
+
+    print("")
+    print("Creating sphere...")
+    radius = radius_ratio * REALIZATION_SCALE_MM
+
+    # angle1=-90, angle2=90 (full latitude range, south to north pole)
+    # is what actually produces a full, non-degenerate sphere in this
+    # FreeCAD version - (0.0, 360.0, 360.0), used here previously,
+    # produces a near-zero-volume degenerate sphere instead (verified
+    # directly: Volume ~= 5.6e-15 for a radius that should give
+    # 4/3*pi*r^3). See dataset_gen/FCMacros/assemble_reconstruction.FCMacro's
+    # module docstring, where this was first caught.
+    sphere_shape = Part.makeSphere(
+            float(radius),
+            App.Vector(
+                0.0,
+                0.0,
+                0.0
+            ),
+            App.Vector(
+                0.0,
+                0.0,
+                1.0
+            ),
+            -90.0,
+            90.0,
+            360.0
+        )
+
+    if sphere_shape is None:
+
+            raise RuntimeError(
+                "Part.makeSphere returned None."
+            )
+
+    if sphere_shape.isNull():
+
+            raise RuntimeError(
+                "Part.makeSphere produced a null shape."
+            )
+
+
+    sphere_shape.Placement = App.Placement(
+        App.Vector(
+            0.0,
+            0.0,
+            0.0
+        ),
+        rotation
+    )
+
+    if sphere_shape.isNull():
+
+        raise RuntimeError(
+            "Box shape became null after rotation."
+        )
+
+    return sphere_shape
+
+
+# ================================================================
+# STL EXPORT
+# ================================================================
+
+def export_shape_as_stl(
+    shape,
+    output_path
+):
+
+    if shape is None:
+
+        raise RuntimeError(
+            "No shape was generated."
+        )
+
+    if shape.isNull():
+
+        raise RuntimeError(
+            "Generated shape is null."
+        )
+
+    output_dir = os.path.dirname(
+        output_path
+    )
+
+    if output_dir:
+
+        os.makedirs(
+            output_dir,
+            exist_ok=True
+        )
+
+    angular_rad = (
+        ANGULAR_DEFLECTION_DEG
+        * math.pi
+        / 180.0
+    )
+
+    mesh = MeshPart.meshFromShape(
+        Shape=shape,
+        LinearDeflection=LINEAR_DEFLECTION_MM,
+        AngularDeflection=angular_rad,
+        Relative=RELATIVE_MESH
+    )
+
+    if mesh is None:
+
+        raise RuntimeError(
+            "MeshPart.meshFromShape() returned None."
+        )
+
+    mesh.write(
+        output_path
+    )
+
+    # ------------------------------------------------------------
+    # Verify STL.
+    # ------------------------------------------------------------
+
+    if not os.path.isfile(
+        output_path
+    ):
+
+        raise RuntimeError(
+            "STL was not created:\n"
+            + output_path
+        )
+
+    size = os.path.getsize(
+        output_path
+    )
+
+    if size <= 0:
+
+        raise RuntimeError(
+            "STL file is empty:\n"
+            + output_path
+        )
+
+    print("")
+    print(
+        "STL created successfully:"
+    )
+
+    print(
+        " ",
+        output_path
+    )
+
+    print(
+        " ",
+        size,
+        "bytes"
+    )
+
+
+# ================================================================
+# MAIN
+# ================================================================
+
+def main():
+
+    print("")
+    print(
+        "============================================================"
+    )
+
+    print(
+        "AFFINE BOX DATASET MACRO"
+    )
+
+    print(
+        "============================================================"
+    )
+
+    print(
+        "Physical realization scale =",
+        REALIZATION_SCALE_MM,
+        "mm"
+    )
+
+    # ------------------------------------------------------------
+    # Load affine parameters.
+    # ------------------------------------------------------------
+
+    affine = load_affine_parameters()
+
+    print("")
+    print(
+        "Affine parameters:"
+    )
+
+    print(
+        json.dumps(
+            affine,
+            indent=2
+        )
+    )
+
+    # ------------------------------------------------------------
+    # Load rotation independently.
+    # ------------------------------------------------------------
+
+    quaternion = load_rotation()
+
+    print("")
+    print(
+        "Rotation:"
+    )
+
+    print(
+        quaternion
+    )
+
+    # ------------------------------------------------------------
+    # Output STL.
+    # ------------------------------------------------------------
+
+    output_path = require_environment_variable(
+        "DATASET_OUT_STL"
+    )
+
+    print("")
+    print(
+        "Output STL:"
+    )
+
+    print(
+        output_path
+    )
+
+    # ------------------------------------------------------------
+    # Realize affine geometry.
+    # ------------------------------------------------------------
+
+    (
+        radius_ratio
+    ) = realize_box_dimensions(
+        affine
+    )
+
+    print("")
+    print(
+        "Physical realization:"
+    )
+
+    print(
+        "  radius_ratio =",
+        radius_ratio,
+        "mm"
+    )
+
+
+    # ------------------------------------------------------------
+    # Convert rotation.
+    # ------------------------------------------------------------
+
+    rotation = quaternion_to_rotation(
+        quaternion
+    )
+
+    # ------------------------------------------------------------
+    # Create canonical centered box and rotate it.
+    # ------------------------------------------------------------
+
+    shape = create_sphere(
+        radius_ratio = radius_ratio,
+        rotation=rotation
+    )
+
+    # ------------------------------------------------------------
+    # Export STL.
+    # ------------------------------------------------------------
+
+    export_shape_as_stl(
+        shape=shape,
+        output_path=output_path
+    )
+
+    print("")
+    print(
+        "Box sample completed successfully."
+    )
+
+    print(
+        "============================================================"
+    )
+
+
+# ================================================================
+# RUN
+# ================================================================
+
+if __name__ == "__main__":
+
+    main()
+

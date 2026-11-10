@@ -1,0 +1,134 @@
+{
+ "name": "j03_t_joint",
+ "description": "T-joint: HEA 300 stem standing on the mid-span of an HEA 300 beam",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "HEA 300",
+   "envelope": "HEA 300",
+   "section": {
+    "h": 290.0,
+    "b": 300.0,
+    "tw": 8.5,
+    "tf": 14.0,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    3000.0,
+    0.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 300",
+   "envelope": "HEA 300",
+   "section": {
+    "h": 290.0,
+    "b": 300.0,
+    "tw": 8.5,
+    "tf": 14.0,
+    "r": 27.0
+   },
+   "start": [
+    1500.0,
+    0.0,
+    145.0
+   ],
+   "end": [
+    1500.0,
+    0.0,
+    2145.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    1.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "butt",
+   "members": [
+    1,
+    0
+   ]
+  }
+ ],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   }
+  ],
+  "adds": 6,
+  "cuts": 0,
+  "total": 6,
+  "notes": []
+ },
+ "volume_mm3": 56263894.777665116,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 1244,
+ "bbox_min": [
+  0.0,
+  -150.0,
+  -145.0
+ ],
+ "bbox_max": [
+  3000.0,
+  150.0,
+  2145.0
+ ],
+ "diagonal_mm": 3786.040147700497,
+ "stl_deflection_mm": 0.5
+}

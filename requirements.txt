@@ -1,0 +1,19 @@
+# SHaPe ReCo: the packages of the reconstruction, the dataset generation and the tests (install.sh installs them).
+# Lower bounds are the versions it was developed and tested with (Python 3.13, 2026-10). FreeCAD 1.0 is not on PyPI:
+# freecadcmd comes from the system (see README.md, "Installation").
+numpy>=2.2
+scipy>=1.15
+trimesh>=4.11
+rtree>=1.4
+networkx>=3.5
+libigl>=2.6
+manifold3d>=3.5
+scikit-learn>=1.6
+joblib>=1.4
+matplotlib>=3.10
+pillow>=11.1
+psutil>=6.0
+numpy-stl>=3.2
+pyyaml>=6.0
+tqdm>=4.67
+pytest>=8.3

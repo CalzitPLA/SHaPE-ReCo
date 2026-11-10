@@ -1,0 +1,422 @@
+{
+    "id": 1,
+    "scene_width": 64000,
+    "scene_height": 64000,
+    "nodes": [
+        {
+            "id": 1017,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": -200.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1033,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "VECTOR FIELD (no voxels, no networks): peel the mesh into a CSG program of analytic primitives, build it in FreeCAD, grade it in mm | click Run on Peel, then on Export Program"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1049,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": -120.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1065,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "dataset_gen/examples/co_countersink.stl"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1081,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": -60.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1097,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "8"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1113,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": 0.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1129,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "0.985"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1145,
+            "title": "Text",
+            "pos_x": -600.0,
+            "pos_y": 100.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1161,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "/tmp/shape_reco_vector_field"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1177,
+            "title": "Text",
+            "pos_x": -600.0,
+            "pos_y": 160.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1193,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "reconstruction"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1209,
+            "title": "Text",
+            "pos_x": -280.0,
+            "pos_y": 130.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1225,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "3000"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1241,
+            "title": "Load Mesh",
+            "pos_x": -600.0,
+            "pos_y": -160.0,
+            "inputs": [
+                {
+                    "id": 1257,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1273,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {},
+            "op_code": "<class 'shape_reco_load_mesh.ShapeRecoLoadMesh'>"
+        },
+        {
+            "id": 1289,
+            "title": "Peel (Vector Field)",
+            "pos_x": -600.0,
+            "pos_y": -60.0,
+            "inputs": [
+                {
+                    "id": 1305,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1321,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1337,
+                    "index": 2,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1353,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1369,
+                    "index": 1,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1385,
+                    "index": 2,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {},
+            "op_code": "<class 'shape_reco_field_peel.ShapeRecoFieldPeel'>"
+        },
+        {
+            "id": 1401,
+            "title": "Export Program",
+            "pos_x": -300.0,
+            "pos_y": -60.0,
+            "inputs": [
+                {
+                    "id": 1417,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1433,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1449,
+                    "index": 2,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1465,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1481,
+                    "index": 1,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1497,
+                    "index": 2,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {},
+            "op_code": "<class 'shape_reco_field_export.ShapeRecoFieldExport'>"
+        },
+        {
+            "id": 1513,
+            "title": "Load Mesh",
+            "pos_x": 0.0,
+            "pos_y": -60.0,
+            "inputs": [
+                {
+                    "id": 1529,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1545,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {},
+            "op_code": "<class 'shape_reco_load_mesh.ShapeRecoLoadMesh'>"
+        },
+        {
+            "id": 1561,
+            "title": "Field Grade",
+            "pos_x": 0.0,
+            "pos_y": 60.0,
+            "inputs": [
+                {
+                    "id": 1577,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1593,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1609,
+                    "index": 2,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1625,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1641,
+                    "index": 1,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {},
+            "op_code": "<class 'shape_reco_field_grade.ShapeRecoFieldGrade'>"
+        }
+    ],
+    "edges": [
+        {
+            "id": 1657,
+            "edge_type": 1,
+            "start": 1065,
+            "end": 1257
+        },
+        {
+            "id": 1673,
+            "edge_type": 1,
+            "start": 1065,
+            "end": 1305
+        },
+        {
+            "id": 1689,
+            "edge_type": 1,
+            "start": 1097,
+            "end": 1321
+        },
+        {
+            "id": 1705,
+            "edge_type": 1,
+            "start": 1129,
+            "end": 1337
+        },
+        {
+            "id": 1721,
+            "edge_type": 1,
+            "start": 1353,
+            "end": 1417
+        },
+        {
+            "id": 1737,
+            "edge_type": 1,
+            "start": 1161,
+            "end": 1433
+        },
+        {
+            "id": 1753,
+            "edge_type": 1,
+            "start": 1193,
+            "end": 1449
+        },
+        {
+            "id": 1769,
+            "edge_type": 1,
+            "start": 1481,
+            "end": 1529
+        },
+        {
+            "id": 1785,
+            "edge_type": 1,
+            "start": 1481,
+            "end": 1577
+        },
+        {
+            "id": 1801,
+            "edge_type": 1,
+            "start": 1065,
+            "end": 1593
+        },
+        {
+            "id": 1817,
+            "edge_type": 1,
+            "start": 1225,
+            "end": 1609
+        }
+    ]
+}

@@ -1,0 +1,116 @@
+{
+ "s01_ipe200": {
+  "ok": true,
+  "volume_mm3": 5696821.315766137,
+  "valid": true,
+  "n_solids": 1
+ },
+ "s02_hea500_rot": {
+  "ok": true,
+  "volume_mm3": 59261336.86659913,
+  "valid": true,
+  "n_solids": 1
+ },
+ "s03_rod": {
+  "ok": true,
+  "volume_mm3": 4241150.0823462205,
+  "valid": true,
+  "n_solids": 1
+ },
+ "s04_tube": {
+  "ok": true,
+  "volume_mm3": 8057556.837927099,
+  "valid": true,
+  "n_solids": 1
+ },
+ "s05_rhs": {
+  "ok": true,
+  "volume_mm3": 9088000.0,
+  "valid": true,
+  "n_solids": 1
+ },
+ "s06_flatbar": {
+  "ok": true,
+  "volume_mm3": 3000000.0,
+  "valid": true,
+  "n_solids": 1
+ },
+ "j01_l_butt": {
+  "ok": true,
+  "volume_mm3": 46642768.770684466,
+  "valid": true,
+  "n_solids": 1
+ },
+ "j02_l_mitre": {
+  "ok": true,
+  "volume_mm3": 45011707.32214402,
+  "valid": true,
+  "n_solids": 1
+ },
+ "j03_t_joint": {
+  "ok": true,
+  "volume_mm3": 56263894.777665116,
+  "valid": true,
+  "n_solids": 1
+ },
+ "j04_x_crossing": {
+  "ok": true,
+  "volume_mm3": 63223695.463290304,
+  "valid": true,
+  "n_solids": 1
+ },
+ "f01_portal": {
+  "ok": true,
+  "volume_mm3": 215157128.01189828,
+  "valid": true,
+  "n_solids": 1
+ },
+ "f02_rect_ipe300": {
+  "ok": true,
+  "volume_mm3": 75336823.14119117,
+  "valid": true,
+  "n_solids": 1
+ },
+ "f03_two_bay": {
+  "ok": true,
+  "volume_mm3": 214598036.43300116,
+  "valid": true,
+  "n_solids": 1
+ },
+ "f04_frame_quarter": {
+  "ok": true,
+  "volume_mm3": 205595921.6712532,
+  "valid": true,
+  "n_solids": 1
+ },
+ "t01_warren": {
+  "ok": true,
+  "volume_mm3": 42696799.81910521,
+  "valid": true,
+  "n_solids": 1
+ },
+ "t02_space_frame": {
+  "ok": true,
+  "volume_mm3": 24008155.956843566,
+  "valid": true,
+  "n_solids": 1
+ },
+ "m01_endplate": {
+  "ok": true,
+  "volume_mm3": 12362403.305884581,
+  "valid": true,
+  "n_solids": 1
+ },
+ "m02_bolt_holes": {
+  "ok": true,
+  "volume_mm3": 22462983.047424614,
+  "valid": true,
+  "n_solids": 1
+ },
+ "m03_mixed": {
+  "ok": true,
+  "volume_mm3": 74285862.71148753,
+  "valid": true,
+  "n_solids": 1
+ }
+}

@@ -1,0 +1,80 @@
+{
+ "name": "s01_ipe200",
+ "description": "IPE 200 x 2 m along x",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "IPE 200",
+   "envelope": "IPE 200",
+   "section": {
+    "h": 200.0,
+    "b": 100.0,
+    "tw": 5.6,
+    "tf": 8.5,
+    "r": 12.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   }
+  ],
+  "adds": 3,
+  "cuts": 0,
+  "total": 3,
+  "notes": []
+ },
+ "volume_mm3": 5696821.315766137,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 620,
+ "bbox_min": [
+  0.0,
+  -50.0,
+  -100.0
+ ],
+ "bbox_max": [
+  2000.0,
+  50.0,
+  100.0
+ ],
+ "diagonal_mm": 2012.4611797498108,
+ "stl_deflection_mm": 0.5
+}

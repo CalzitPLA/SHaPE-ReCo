@@ -1,0 +1,134 @@
+{
+ "name": "j01_l_butt",
+ "description": "L-corner of two HEA 300: post under the end of the girder (butt joint)",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "HEA 300",
+   "envelope": "HEA 300",
+   "section": {
+    "h": 290.0,
+    "b": 300.0,
+    "tw": 8.5,
+    "tf": 14.0,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    0.0,
+    2000.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 300",
+   "envelope": "HEA 300",
+   "section": {
+    "h": 290.0,
+    "b": 300.0,
+    "tw": 8.5,
+    "tf": 14.0,
+    "r": 27.0
+   },
+   "start": [
+    -145.0,
+    0.0,
+    2145.0
+   ],
+   "end": [
+    2000.0,
+    0.0,
+    2145.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "butt",
+   "members": [
+    0,
+    1
+   ]
+  }
+ ],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   }
+  ],
+  "adds": 6,
+  "cuts": 0,
+  "total": 6,
+  "notes": []
+ },
+ "volume_mm3": 46642768.770684466,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 1236,
+ "bbox_min": [
+  -145.0,
+  -150.0,
+  0.0
+ ],
+ "bbox_max": [
+  2000.0,
+  150.0,
+  2290.0
+ ],
+ "diagonal_mm": 3152.0033312165137,
+ "stl_deflection_mm": 0.5
+}

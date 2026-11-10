@@ -1,0 +1,19 @@
+{
+ "name": "Batrachotoxin",
+ "cid": 6324647,
+ "formula": "C31H42N2O6",
+ "weight": "538.7",
+ "atoms": 81,
+ "bonds": 87,
+ "iupac": "[(1S)-1-[(1R,5R,6S,9R,11S,12R,14R)-9,12-dihydroxy-6,16-dimethyl-10,19-dioxa-16-azahexacyclo[12.5.3.15,9.01,14.02,11.06,11]tricosa-2,21-dien-22-yl]ethyl] 2,4-dimethyl-1H-pyrrole-3-carboxylate",
+ "source": "PubChem PUG REST, record_type=2d, fetched with MoleculMaker.FCMacro",
+ "skeletal": {
+  "file": "File:Batrachotoxin_skeletal.svg",
+  "page": "https://commons.wikimedia.org/wiki/File:Batrachotoxin_skeletal.svg",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/3/32/Batrachotoxin_skeletal.svg",
+  "sha1": "2ad323e0ffea9c486305281bcad10fda368517b8",
+  "artist": "Ed (Edgar181)",
+  "licence": "Public domain",
+  "shown_in": "https://en.wikipedia.org/wiki/Batrachotoxin"
+ }
+}

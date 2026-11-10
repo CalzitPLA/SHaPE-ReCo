@@ -1,0 +1,19 @@
+# pip-only environment for dataset generation and training on the institute servers (Python 3.11, shared NFS venv).
+# Versions pinned to the laptop (2026-09-26). FreeCAD is not on PyPI: freecadcmd comes from the host's system package
+# (server_b/server_e/server_f/server_g: 0.20.2; the laptop runs 1.0). torch itself is installed by setup_venv.sh (CUDA index).
+numpy==2.2.4
+scipy==1.15.3
+trimesh==4.11.5
+rtree==1.4.0
+networkx==3.5
+stl-to-voxel==0.10.1
+numpy-stl==3.2.0
+libigl==2.6.3
+manifold3d==3.5.3
+scikit-learn==1.8.0
+joblib==1.5.3
+matplotlib==3.10.1
+pillow==11.1.0
+pyyaml==6.0.2
+pytest==8.3.5
+tqdm==4.67.1

@@ -1,0 +1,710 @@
+# ================================================================
+# FreeCAD Affine Dataset Macro
+# CONE / FRUSTUM
+#
+# Dataset-generator interface
+#
+# Expected DATASET_PARAMS_JSON:
+#
+# {
+#     "radius1_ratio": 0.5624,
+#     "radius2_ratio": 0.2627,
+#     "height_ratio": 1.7378
+# }
+#
+# Expected DATASET_ROTATION_JSON:
+#
+# [
+#     qx,
+#     qy,
+#     qz,
+#     qw
+# ]
+#
+# Physical realization:
+#
+#     radius1 = radius1_ratio * 10 mm
+#     radius2 = radius2_ratio * 10 mm
+#     height  = height_ratio  * 10 mm
+#
+# No translation is used.
+#
+# The shape is generated in canonical position and then rotated.
+# ================================================================
+
+import os
+import json
+import math
+
+import FreeCAD as App
+import Part
+import MeshPart
+
+
+# ================================================================
+# CONFIGURATION
+# ================================================================
+
+REALIZATION_SCALE_MM = 10.0
+
+LINEAR_DEFLECTION_MM = 0.05
+
+ANGULAR_DEFLECTION_DEG = 5.0
+
+RELATIVE_MESH = False
+
+
+# ================================================================
+# ENVIRONMENT
+# ================================================================
+
+def require_environment_variable(name):
+
+    value = os.environ.get(name)
+
+    if value is None or value.strip() == "":
+        raise RuntimeError(
+            "{} is not defined.".format(name)
+        )
+
+    return value
+
+
+# ================================================================
+# LOAD AFFINE PARAMETERS
+# ================================================================
+
+def load_affine_parameters():
+
+    raw = require_environment_variable(
+        "DATASET_PARAMS_JSON"
+    )
+
+    print("")
+    print("DATASET_PARAMS_JSON:")
+    print(raw)
+
+    try:
+        params = json.loads(raw)
+
+    except Exception as exc:
+        raise RuntimeError(
+            "Invalid DATASET_PARAMS_JSON:\n{}".format(exc)
+        )
+
+    if not isinstance(params, dict):
+        raise RuntimeError(
+            "DATASET_PARAMS_JSON must contain a JSON object."
+        )
+
+    # Support:
+    #
+    # {
+    #     "radius1_ratio": ...,
+    #     "radius2_ratio": ...,
+    #     "height_ratio": ...
+    # }
+    #
+    # and:
+    #
+    # {
+    #     "affine": {
+    #         ...
+    #     }
+    # }
+
+    if "affine" in params:
+
+        affine = params["affine"]
+
+        if not isinstance(affine, dict):
+            raise RuntimeError(
+                "'affine' must be a JSON object."
+            )
+
+        return affine
+
+    return params
+
+
+# ================================================================
+# LOAD ROTATION
+# ================================================================
+
+def load_rotation():
+
+    rotation_raw = os.environ.get(
+        "DATASET_ROTATION_JSON"
+    )
+
+    if rotation_raw is not None:
+
+        if rotation_raw.strip() == "":
+            raise RuntimeError(
+                "DATASET_ROTATION_JSON is empty."
+            )
+
+        print("")
+        print("DATASET_ROTATION_JSON:")
+        print(rotation_raw)
+
+        try:
+            rotation = json.loads(rotation_raw)
+
+        except Exception as exc:
+            raise RuntimeError(
+                "Invalid DATASET_ROTATION_JSON:\n{}".format(exc)
+            )
+
+        return rotation
+
+    # Backwards compatibility:
+    # rotation may be contained in DATASET_PARAMS_JSON.
+
+    raw = os.environ.get(
+        "DATASET_PARAMS_JSON"
+    )
+
+    if raw is not None:
+
+        try:
+            params = json.loads(raw)
+
+        except Exception:
+            params = {}
+
+        if isinstance(params, dict):
+
+            if "rotation" in params:
+                return params["rotation"]
+
+            if "affine" in params:
+
+                affine = params["affine"]
+
+                if isinstance(affine, dict):
+
+                    if "rotation" in affine:
+                        return affine["rotation"]
+
+    raise RuntimeError(
+        "Missing rotation parameter.\n"
+        "Expected DATASET_ROTATION_JSON."
+    )
+
+
+# ================================================================
+# FLOAT PARAMETER
+# ================================================================
+
+def get_float(params, name):
+
+    if name not in params:
+        raise RuntimeError(
+            "Missing affine parameter: {}\n"
+            "Received: {}".format(name, params)
+        )
+
+    try:
+        return float(params[name])
+
+    except Exception:
+        raise RuntimeError(
+            "Affine parameter '{}' must be numeric.".format(name)
+        )
+
+
+# ================================================================
+# AFFINE -> PHYSICAL REALIZATION
+# ================================================================
+
+def realize_cone_dimensions(affine):
+
+    # ------------------------------------------------------------
+    # IMPORTANT:
+    #
+    # The dataset generator uses:
+    #
+    # radius1_ratio
+    # radius2_ratio
+    # height_ratio
+    #
+    # Do NOT use radius_ratio here.
+    # ------------------------------------------------------------
+
+    radius1_ratio = get_float(
+        affine,
+        "radius1_ratio"
+    )
+
+    radius2_ratio = get_float(
+        affine,
+        "radius2_ratio"
+    )
+
+    height_ratio = get_float(
+        affine,
+        "height_ratio"
+    )
+
+    # ------------------------------------------------------------
+    # Validate.
+    # ------------------------------------------------------------
+
+    if radius1_ratio < 0.0:
+        raise RuntimeError(
+            "radius1_ratio must be >= 0."
+        )
+
+    if radius2_ratio < 0.0:
+        raise RuntimeError(
+            "radius2_ratio must be >= 0."
+        )
+
+    if height_ratio <= 0.0:
+        raise RuntimeError(
+            "height_ratio must be > 0."
+        )
+
+    # At least one radius must be positive.
+    if radius1_ratio <= 0.0 and radius2_ratio <= 0.0:
+        raise RuntimeError(
+            "At least one cone radius must be > 0."
+        )
+
+    # ------------------------------------------------------------
+    # Dimensional realization.
+    # ------------------------------------------------------------
+
+    radius1_mm = (
+        radius1_ratio
+        * REALIZATION_SCALE_MM
+    )
+
+    radius2_mm = (
+        radius2_ratio
+        * REALIZATION_SCALE_MM
+    )
+
+    height_mm = (
+        height_ratio
+        * REALIZATION_SCALE_MM
+    )
+
+    return (
+        radius1_mm,
+        radius2_mm,
+        height_mm
+    )
+
+
+# ================================================================
+# QUATERNION -> FREECAD ROTATION
+# ================================================================
+
+def quaternion_to_rotation(quaternion):
+
+    if quaternion is None:
+        raise RuntimeError(
+            "Rotation is None."
+        )
+
+    if not isinstance(quaternion, (list, tuple)):
+        raise RuntimeError(
+            "Rotation must be a list [qx, qy, qz, qw]."
+        )
+
+    if len(quaternion) != 4:
+        raise RuntimeError(
+            "Rotation must contain exactly four values: "
+            "[qx, qy, qz, qw]."
+        )
+
+    try:
+
+        qx = float(quaternion[0])
+        qy = float(quaternion[1])
+        qz = float(quaternion[2])
+        qw = float(quaternion[3])
+
+    except Exception:
+        raise RuntimeError(
+            "Quaternion components must be numeric."
+        )
+
+    # ------------------------------------------------------------
+    # Normalize quaternion.
+    # ------------------------------------------------------------
+
+    norm = math.sqrt(
+        qx * qx
+        + qy * qy
+        + qz * qz
+        + qw * qw
+    )
+
+    if norm < 1e-15:
+        raise RuntimeError(
+            "Rotation quaternion has zero length."
+        )
+
+    qx /= norm
+    qy /= norm
+    qz /= norm
+    qw /= norm
+
+    # ------------------------------------------------------------
+    # Quaternion -> axis-angle.
+    # ------------------------------------------------------------
+
+    sin_half = math.sqrt(
+        qx * qx
+        + qy * qy
+        + qz * qz
+    )
+
+    # Identity rotation.
+    if sin_half < 1e-12:
+        return App.Rotation()
+
+    axis = App.Vector(
+        qx / sin_half,
+        qy / sin_half,
+        qz / sin_half
+    )
+
+    angle_rad = (
+        2.0
+        * math.atan2(
+            sin_half,
+            qw
+        )
+    )
+
+    angle_deg = (
+        angle_rad
+        * 180.0
+        / math.pi
+    )
+
+    return App.Rotation(
+        axis,
+        angle_deg
+    )
+
+
+# ================================================================
+# CREATE CONE / FRUSTUM
+# ================================================================
+
+def create_cone(
+    radius1_mm,
+    radius2_mm,
+    height_mm,
+    rotation
+):
+
+    doc = App.activeDocument()
+
+    if doc is None:
+        doc = App.newDocument(
+            "AffineConeDataset"
+        )
+
+    # ------------------------------------------------------------
+    # FreeCAD Part::Cone
+    #
+    # Radius1 = bottom/base radius
+    # Radius2 = top radius
+    # Height  = local Z direction
+    #
+    # radius2 != 0 produces a truncated cone/frustum.
+    # radius2 == 0 produces a true cone.
+    # ------------------------------------------------------------
+
+    cone = doc.addObject(
+        "Part::Cone",
+        "DatasetCone"
+    )
+
+    cone.Radius1 = float(
+        radius1_mm
+    )
+
+    cone.Radius2 = float(
+        radius2_mm
+    )
+
+    cone.Height = float(
+        height_mm
+    )
+
+    # ------------------------------------------------------------
+    # Apply rotation.
+    #
+    # No translation.
+    # ------------------------------------------------------------
+
+    cone.Placement = App.Placement(
+        App.Vector(
+            0.0,
+            0.0,
+            0.0
+        ),
+        rotation
+    )
+
+    doc.recompute()
+
+    if cone.Shape.isNull():
+        raise RuntimeError(
+            "FreeCAD created a null cone shape."
+        )
+
+    return (
+        doc,
+        cone,
+        cone.Shape.copy()
+    )
+
+
+# ================================================================
+# STL EXPORT
+# ================================================================
+
+def export_shape_as_stl(
+    shape,
+    output_path
+):
+
+    output_dir = os.path.dirname(
+        output_path
+    )
+
+    if output_dir:
+        os.makedirs(
+            output_dir,
+            exist_ok=True
+        )
+
+    angular_rad = (
+        ANGULAR_DEFLECTION_DEG
+        * math.pi
+        / 180.0
+    )
+
+    mesh = MeshPart.meshFromShape(
+        Shape=shape,
+        LinearDeflection=LINEAR_DEFLECTION_MM,
+        AngularDeflection=angular_rad,
+        Relative=RELATIVE_MESH
+    )
+
+    if mesh is None:
+        raise RuntimeError(
+            "MeshPart.meshFromShape() returned None."
+        )
+
+    mesh.write(
+        output_path
+    )
+
+    # ------------------------------------------------------------
+    # Verify STL.
+    # ------------------------------------------------------------
+
+    if not os.path.isfile(output_path):
+        raise RuntimeError(
+            "STL was not created:\n{}".format(
+                output_path
+            )
+        )
+
+    size = os.path.getsize(
+        output_path
+    )
+
+    if size <= 0:
+        raise RuntimeError(
+            "STL file is empty:\n{}".format(
+                output_path
+            )
+        )
+
+    print("")
+    print("STL created successfully:")
+    print(" ", output_path)
+    print(" ", size, "bytes")
+
+
+# ================================================================
+# MAIN
+# ================================================================
+
+def main():
+
+    print("")
+    print(
+        "============================================================"
+    )
+
+    print(
+        "AFFINE CONE DATASET MACRO"
+    )
+
+    print(
+        "============================================================"
+    )
+
+    print(
+        "Physical realization scale =",
+        REALIZATION_SCALE_MM,
+        "mm"
+    )
+
+    # ------------------------------------------------------------
+    # Load affine parameters.
+    # ------------------------------------------------------------
+
+    affine = load_affine_parameters()
+
+    print("")
+    print("Affine parameters:")
+
+    print(
+        json.dumps(
+            affine,
+            indent=2
+        )
+    )
+
+    # ------------------------------------------------------------
+    # Load rotation independently.
+    # ------------------------------------------------------------
+
+    quaternion = load_rotation()
+
+    print("")
+    print("Rotation:")
+    print(quaternion)
+
+    # ------------------------------------------------------------
+    # Output STL.
+    # ------------------------------------------------------------
+
+    output_path = require_environment_variable(
+        "DATASET_OUT_STL"
+    )
+
+    print("")
+    print("Output STL:")
+    print(output_path)
+
+    # ------------------------------------------------------------
+    # Realize affine geometry.
+    # ------------------------------------------------------------
+
+    (
+        radius1_mm,
+        radius2_mm,
+        height_mm
+    ) = realize_cone_dimensions(
+        affine
+    )
+
+    print("")
+    print("Physical realization:")
+
+    print(
+        "  radius1 =",
+        radius1_mm,
+        "mm"
+    )
+
+    print(
+        "  radius2 =",
+        radius2_mm,
+        "mm"
+    )
+
+    print(
+        "  height  =",
+        height_mm,
+        "mm"
+    )
+
+    # ------------------------------------------------------------
+    # Convert rotation.
+    # ------------------------------------------------------------
+
+    rotation = quaternion_to_rotation(
+        quaternion
+    )
+
+    # ------------------------------------------------------------
+    # Create cone/frustum.
+    # ------------------------------------------------------------
+
+    doc, cone, shape = create_cone(
+        radius1_mm=radius1_mm,
+        radius2_mm=radius2_mm,
+        height_mm=height_mm,
+        rotation=rotation
+    )
+
+    try:
+
+        # --------------------------------------------------------
+        # Export STL.
+        # --------------------------------------------------------
+
+        export_shape_as_stl(
+            shape=shape,
+            output_path=output_path
+        )
+
+    finally:
+
+        # --------------------------------------------------------
+        # Remove object.
+        # --------------------------------------------------------
+
+        try:
+            doc.removeObject(
+                cone.Name
+            )
+
+            doc.recompute()
+
+        except Exception:
+            pass
+
+        # --------------------------------------------------------
+        # Close document.
+        # --------------------------------------------------------
+
+        try:
+            App.closeDocument(
+                doc.Name
+            )
+
+        except Exception:
+            pass
+
+    print("")
+    print(
+        "Cone sample completed successfully."
+    )
+
+    print(
+        "============================================================"
+    )
+
+
+# ================================================================
+# RUN
+# ================================================================
+
+if __name__ == "__main__":
+    main()
+

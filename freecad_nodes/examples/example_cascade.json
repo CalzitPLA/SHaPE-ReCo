@@ -1,0 +1,266 @@
+{
+    "id": 1,
+    "scene_width": 64000,
+    "scene_height": 64000,
+    "nodes": [
+        {
+            "id": 1017,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": -200.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1033,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "CASCADE (add-cut): per leftover component of the residual, type -> rotation -> dimensions -> position from the stage registry, added or cut until nothing is left | click Run on Cascade Reconstruct"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1049,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": -120.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1065,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "dataset_gen/examples/bs_box_sphere_pocket.stl"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1081,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": -60.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1097,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "2"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1113,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": 0.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1129,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "12"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1145,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": 60.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1161,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "models/registry.json"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1177,
+            "title": "Text",
+            "pos_x": -900.0,
+            "pos_y": 120.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1193,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {
+                "value": "0"
+            },
+            "op_code": "<class 'text_text.Text'>"
+        },
+        {
+            "id": 1209,
+            "title": "Load Mesh",
+            "pos_x": -600.0,
+            "pos_y": -160.0,
+            "inputs": [
+                {
+                    "id": 1225,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1241,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {},
+            "op_code": "<class 'shape_reco_load_mesh.ShapeRecoLoadMesh'>"
+        },
+        {
+            "id": 1257,
+            "title": "Cascade Reconstruct",
+            "pos_x": -600.0,
+            "pos_y": -40.0,
+            "inputs": [
+                {
+                    "id": 1273,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1289,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1305,
+                    "index": 2,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1321,
+                    "index": 3,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1337,
+                    "index": 4,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1353,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1369,
+                    "index": 1,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1385,
+                    "index": 2,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                },
+                {
+                    "id": 1401,
+                    "index": 3,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 6
+                }
+            ],
+            "content": {},
+            "op_code": "<class 'shape_reco_cascade.ShapeRecoCascade'>"
+        }
+    ],
+    "edges": [
+        {
+            "id": 1417,
+            "edge_type": 1,
+            "start": 1065,
+            "end": 1225
+        },
+        {
+            "id": 1433,
+            "edge_type": 1,
+            "start": 1065,
+            "end": 1273
+        },
+        {
+            "id": 1449,
+            "edge_type": 1,
+            "start": 1097,
+            "end": 1289
+        },
+        {
+            "id": 1465,
+            "edge_type": 1,
+            "start": 1129,
+            "end": 1305
+        },
+        {
+            "id": 1481,
+            "edge_type": 1,
+            "start": 1161,
+            "end": 1321
+        },
+        {
+            "id": 1497,
+            "edge_type": 1,
+            "start": 1193,
+            "end": 1337
+        }
+    ]
+}

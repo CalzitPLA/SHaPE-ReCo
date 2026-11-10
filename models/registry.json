@@ -1,0 +1,745 @@
+{
+ "version": 1,
+ "about": "Stage -> source registry read by reco_engine/stage_registry.py. Numbers from scripts/eval_stage_ensemble.py (docs/data/ensemble_selection.json). Checkpoint paths are relative to the repo root; old directories stay where they are.",
+ "default_type_entry": "type_v3_B",
+ "ensembles": {
+  "type": {
+   "rule": "cylgate",
+   "members": [
+    "type_v3_B",
+    "type_inscale_v2",
+    "type_v4",
+    "type_hollow"
+   ],
+   "cylinder_threshold": 0.7,
+   "description": "cylinder iff mean P(cylinder) of type_v4+type_hollow >= 0.7, else box/sphere from mean(type_v3_B, type_inscale_v2); take the top-2 and let the downstream fit grade prune",
+   "pooled_accuracy": 0.9608,
+   "pooled_top2": 0.9804,
+   "per_set": {
+    "test": 0.9625,
+    "test_carve": 0.99,
+    "test_ff": 0.9775,
+    "test_mixed": 0.98,
+    "test_cyl": 0.885,
+    "test_hollow": 0.97
+   },
+   "gate": 0.994,
+   "gate_coverage": 0.487,
+   "alternative": {
+    "id": "mean_all5",
+    "pooled_accuracy": 0.9513,
+    "top2": 0.9929,
+    "gate": 0.695,
+    "note": "best box/sphere accuracy, but test_cyl only 0.765"
+   },
+   "g0": "fails against the per-set specialists (no combination beats B on box/sphere AND hollow/v4 on cylinders); passes vs the best pooled single net (type_hollow) on 4 of 6 sets"
+  }
+ },
+ "entries": [
+  {
+   "id": "type_descriptors_v5",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "descriptor",
+   "path": "models/type_descriptors_v5_medium.joblib",
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/type_descriptor_baseline_v5*.json (scripts/eval_descriptor_baseline_v5.py); the joblib's meta['eval'] after the fit",
+    "test_set": "v5 medium test (noised); small test 0.850",
+    "parent_acc": 0.7693,
+    "impl": "reco_engine/type_descriptors.py: 27 rotation-invariant descriptors of the scale-normalised 64^3 occupancy + gradient-boosted trees (parent and subclass heads)",
+    "fit": "python3 -m reco_engine.type_descriptors --fit dataset_gen/local_dataset_v5/medium/train --out models/type_descriptors_v5_medium.joblib --eval dataset_gen/local_dataset_v5/medium/test",
+    "note": "skipped (with a stderr line) until the joblib file exists; the cascade fuses it with the CNN entries, weights = parent_acc",
+    "parent_acc_source": "val, parity medium (docs/data/gate_t_medium.json)",
+    "test_parent_acc": 0.7679,
+    "test_sub_acc_true_parent": 0.8616
+   }
+  },
+  {
+   "id": "type_hier_dirlog_inside_medium",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "cylinder",
+    "cone",
+    "sphere",
+    "torus"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints/type_hier_medium_parity_dirlog_inside/type_cnn",
+   "input_kind": "dirlog_inside",
+   "cost": 6,
+   "gate": null,
+   "metrics": {
+    "parent_acc": 0.6966,
+    "parent_acc_source": "val, parity medium (docs/data/gate_t_medium.json)",
+    "test_parent_acc": 0.6667,
+    "test_sub_acc_true_parent": 0.8631,
+    "grid_mm": 40.0,
+    "hierarchical": true,
+    "epochs": 57,
+    "trained": "2026-09-24 night, parity medium v5, batch 16 bf16",
+    "note_legacy": "legacy since 2026-10-10: 0.667 parent accuracy on the clean v5 test set against 0.927 of type_hier_dirlog_inside_v5clean_k4"
+   },
+   "legacy": true
+  },
+  {
+   "id": "type_hier_dirlog_inside_v5clean_k4",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "cylinder",
+    "cone",
+    "sphere",
+    "torus"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints/type_hier_v5clean_k4_dirlog_inside/type_cnn",
+   "input_kind": "dirlog_inside",
+   "cost": 6,
+   "gate": null,
+   "metrics": {
+    "parent_acc": 0.9268,
+    "parent_top2": 0.9886,
+    "sub_acc_pred_parent": 0.8801,
+    "n_test": 1926,
+    "val_parent_acc": 0.9386,
+    "source": "v5_clean clean test set (no noise), model_card.json; trained 2026-10-02 on server_a, 19,075 clean parity samples (train/inc1..inc4), seed 0, 38 epochs; the learning curve k1..k4: 0.659/0.792/0.869/0.927 (docs/reports/server_runs_2026-10-10)"
+   },
+   "note": "live since 2026-10-10; the medium net (0.667 on the same test set) is legacy"
+  },
+  {
+   "id": "type_hollow",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_hollow/type_cnn",
+   "input_kind": "occupancy",
+   "cost": 10,
+   "gate": 0.97,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json",
+    "pooled_accuracy": 0.9496,
+    "pooled_top2": 0.9933,
+    "per_set": {
+     "test": 0.92,
+     "test_carve": 0.98,
+     "test_ff": 0.935,
+     "test_mixed": 0.9525,
+     "test_cyl": 0.9225,
+     "test_hollow": 0.9875
+    },
+    "per_class": {
+     "box": 0.932,
+     "sphere": 0.978,
+     "cylinder": 0.9225
+    },
+    "gate_coverage": 0.705,
+    "gate_accuracy": 0.9941
+   },
+   "legacy": true
+  },
+  {
+   "id": "type_v3_B",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "sphere"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_type_v3/carve_plus_v2data/type_cnn",
+   "input_kind": "occupancy",
+   "cost": 11,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json",
+    "pooled_accuracy": 0.8267,
+    "pooled_top2": 0.8942,
+    "per_set": {
+     "test": 1.0,
+     "test_carve": 1.0,
+     "test_ff": 0.9925,
+     "test_mixed": 1.0,
+     "test_cyl": 0.0,
+     "test_hollow": 0.9675
+    },
+    "per_class": {
+     "box": 0.999,
+     "sphere": 0.985,
+     "cylinder": 0.0
+    },
+    "gate_coverage": null,
+    "gate_accuracy": null,
+    "note": "box/sphere only; on the 5 box/sphere sets 0.992 with gate 0.56 covering 99.9 %, but it cannot say cylinder, so it never short-circuits alone"
+   },
+   "legacy": true
+  },
+  {
+   "id": "type_v4",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_type_v4/type_cnn",
+   "input_kind": "occupancy",
+   "cost": 12,
+   "gate": 0.969,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json",
+    "pooled_accuracy": 0.9308,
+    "pooled_top2": 0.9904,
+    "per_set": {
+     "test": 0.9025,
+     "test_carve": 0.985,
+     "test_ff": 0.925,
+     "test_mixed": 0.9375,
+     "test_cyl": 0.9225,
+     "test_hollow": 0.9125
+    },
+    "per_class": {
+     "box": 0.911,
+     "sphere": 0.954,
+     "cylinder": 0.9225
+    },
+    "gate_coverage": 0.718,
+    "gate_accuracy": 0.9919
+   },
+   "legacy": true
+  },
+  {
+   "id": "type_inscale_v2",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "sphere"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_inscale_v2/type_cnn",
+   "input_kind": "occupancy",
+   "cost": 13,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json",
+    "pooled_accuracy": 0.8237,
+    "pooled_top2": 0.8633,
+    "per_set": {
+     "test": 1.0,
+     "test_carve": 1.0,
+     "test_ff": 0.9875,
+     "test_mixed": 0.9975,
+     "test_cyl": 0.0,
+     "test_hollow": 0.9575
+    },
+    "per_class": {
+     "box": 0.992,
+     "sphere": 0.985,
+     "cylinder": 0.0
+    },
+    "gate_coverage": null,
+    "gate_accuracy": null
+   },
+   "legacy": true
+  },
+  {
+   "id": "type_fused_net",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_fused/net_fused",
+   "input_kind": "fused",
+   "cost": 30,
+   "gate": 0.829,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json",
+    "pooled_accuracy": 0.8242,
+    "pooled_top2": 0.9617,
+    "per_set": {
+     "test": 0.86,
+     "test_carve": 0.9475,
+     "test_ff": 0.8625,
+     "test_mixed": 0.8925,
+     "test_cyl": 0.855,
+     "test_hollow": 0.5275
+    },
+    "per_class": {
+     "box": 0.843,
+     "sphere": 0.793,
+     "cylinder": 0.855
+    },
+    "gate_coverage": 0.586,
+    "gate_accuracy": 0.9915
+   },
+   "legacy": true
+  },
+  {
+   "id": "type_field_pertopo",
+   "stage": "type",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/type_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_accuracy": 0.928,
+    "note": "training validation split only; not scored on the voxel test sets (needs the mesh field)"
+   },
+   "legacy": true
+  },
+  {
+   "id": "box_rot_pca",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "prior",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 2,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_carve+test_mixed (600 boxes)",
+    "within10": 0.4533,
+    "median_deg": 11.742,
+    "mean_deg": 20.005
+   }
+  },
+  {
+   "id": "sphere_rot_none",
+   "stage": "rotation",
+   "kinds": [
+    "sphere"
+   ],
+   "mode": "prior",
+   "path": null,
+   "input_kind": "none",
+   "cost": 0,
+   "gate": 1.0,
+   "metrics": {
+    "note": "rotation-invariant: identity"
+   }
+  },
+  {
+   "id": "box_rot_frame",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 1,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_carve+test_mixed (600 boxes)",
+    "within10": 0.935,
+    "median_deg": 1.286,
+    "mean_deg": 6.445,
+    "impl": "reco_engine/box_orientation.py BoxOrienter.frame_only (SHAPE_RECO_BOX_ORIENTER=frame)",
+    "ms_per_volume": 54
+   }
+  },
+  {
+   "id": "cyl_fit_analytic",
+   "stage": "rotation",
+   "kinds": [
+    "cylinder"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/cylinder_fit_eval.json",
+    "test_set": "test_cyl (134)",
+    "axis_median_deg": 0.471,
+    "axis_within5": 0.7015,
+    "impl": "reco_engine/cylinder_fit.py"
+   }
+  },
+  {
+   "id": "box_rot_I_frame",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_rot_sym/I_frame",
+   "input_kind": "occupancy",
+   "cost": 20,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_carve+test_mixed (600 boxes)",
+    "within10": 0.9283,
+    "median_deg": 1.651,
+    "mean_deg": 6.838,
+    "note": "residual after the frame fit; commit d81ccdb4: adds nothing over the frame fit"
+   }
+  },
+  {
+   "id": "box_rot_H_manifold",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_rot_sym/H_manifold",
+   "input_kind": "occupancy",
+   "cost": 21,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_carve+test_mixed (600 boxes)",
+    "within10": 0.8933,
+    "median_deg": 1.426,
+    "mean_deg": 6.971,
+    "note": "PCA residual; same weights as checkpoints_box/rotation"
+   }
+  },
+  {
+   "id": "box_rot_fused_net",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_fused/net_fused",
+   "input_kind": "fused",
+   "cost": 30,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/alignment_eval.json / rotation_eval_*.json",
+    "test_set": "test+test_ff (346 boxes)",
+    "within10": 0.0549,
+    "median_deg": 34.036,
+    "mean_deg": 38.253
+   }
+  },
+  {
+   "id": "box_rot_field_pertopo",
+   "stage": "rotation",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/box_rotation_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_mean_deg": 44,
+    "note": "training validation split; axis loss sign bug suspected (train_field_rotation.py:68)"
+   }
+  },
+  {
+   "id": "cylinder_rot_field_pertopo",
+   "stage": "rotation",
+   "kinds": [
+    "cylinder"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/cylinder_rotation_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_mean_deg": 42,
+    "note": "training validation split; axis loss sign bug suspected (train_field_rotation.py:68)"
+   }
+  },
+  {
+   "id": "cone_rot_field_pertopo",
+   "stage": "rotation",
+   "kinds": [
+    "cone"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/cone_rotation_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_mean_deg": 50,
+    "note": "training validation split; axis loss sign bug suspected (train_field_rotation.py:68)"
+   }
+  },
+  {
+   "id": "torus_rot_field_pertopo",
+   "stage": "rotation",
+   "kinds": [
+    "torus"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_field_pertopo/torus_rotation_cnn",
+   "input_kind": "points",
+   "cost": 40,
+   "gate": null,
+   "metrics": {
+    "val_mean_deg": 47,
+    "note": "training validation split; axis loss sign bug suspected (train_field_rotation.py:68)"
+   }
+  },
+  {
+   "id": "field_fit",
+   "stage": "rotation",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "vf_exact",
+   "cost": 50,
+   "gate": null,
+   "metrics": {
+    "note": "reco_field/fit.py Tukey-IRLS on the exact closest-point field; 41 example parts reconstructed, mean chamfer 0.0012 mm (docs/data/peel_examples.json); not scored per stage on the voxel test sets"
+   }
+  },
+  {
+   "id": "box_dims_measured",
+   "stage": "dimensions",
+   "kinds": [
+    "box"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 2,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json / box_dims_eval.json",
+    "test_set": "test_mixed+test_carve (400 boxes)",
+    "rel_median": 0.1449,
+    "volume_median": 0.2129,
+    "abs_median_vox": 0.824,
+    "impl": "extents after the frame fit (BoxOrienter.frame_only)",
+    "runner_up_measured_after_H": 0.1507
+   }
+  },
+  {
+   "id": "sphere_fit_analytic",
+   "stage": "dimensions",
+   "kinds": [
+    "sphere"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_mixed+test_carve spheres (100)",
+    "radius_rel_median": 0.0052,
+    "impl": "reco_engine/sphere_fit.py"
+   }
+  },
+  {
+   "id": "cyl_fit_analytic",
+   "stage": "dimensions",
+   "kinds": [
+    "cylinder"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_cyl (134)",
+    "radius_rel_median": 0.018,
+    "half_length_rel_median": 0.0358,
+    "iou_median": 0.8301
+   }
+  },
+  {
+   "id": "box_dims_cnn",
+   "stage": "dimensions",
+   "kinds": [
+    "box"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_box_dims/dims_cnn",
+   "input_kind": "occupancy",
+   "cost": 20,
+   "gate": null,
+   "metrics": {
+    "source": "docs/data/ensemble_selection.json / box_dims_eval.json",
+    "test_set": "test_mixed+test_carve (400 boxes)",
+    "rel_median": 0.2649,
+    "volume_median": 0.2533,
+    "abs_median_vox": 2.478
+   }
+  },
+  {
+   "id": "dims_fused_net",
+   "stage": "dimensions",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder"
+   ],
+   "mode": "cnn",
+   "path": "checkpoints_fused/net_fused",
+   "input_kind": "fused",
+   "cost": 30,
+   "gate": null,
+   "metrics": {
+    "val_size_l1_log": 0.25,
+    "note": "training validation split only; not scored on the test sets"
+   }
+  },
+  {
+   "id": "field_fit",
+   "stage": "dimensions",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "vf_exact",
+   "cost": 50,
+   "gate": null,
+   "metrics": {
+    "note": "see rotation/field_fit"
+   }
+  },
+  {
+   "id": "position_placement",
+   "stage": "position",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 1,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_mixed+test_carve",
+    "impl": "reco_engine/placement.py estimate_placement(center='cog')",
+    "box_cog": {
+     "median_vox": 2.384,
+     "within1_vox": 0.19,
+     "n": 400
+    },
+    "box_bbox": {
+     "median_vox": 5.841,
+     "within1_vox": 0.265,
+     "n": 400
+    },
+    "sphere_cog": {
+     "median_vox": 2.03,
+     "within1_vox": 0.17,
+     "n": 400
+    },
+    "sphere_bbox": {
+     "median_vox": 2.751,
+     "within1_vox": 0.297,
+     "n": 400
+    },
+    "note": "error to the UNCUT primitive's centre_vox; a cut/carved body cannot show it"
+   }
+  },
+  {
+   "id": "sphere_fit_analytic",
+   "stage": "position",
+   "kinds": [
+    "sphere"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_mixed+test_carve spheres",
+    "center_median_vox": 0.68,
+    "within1_vox": 0.74
+   }
+  },
+  {
+   "id": "cyl_fit_analytic",
+   "stage": "position",
+   "kinds": [
+    "cylinder"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "occupancy",
+   "cost": 5,
+   "gate": null,
+   "metrics": {
+    "test_set": "test_cyl (134)",
+    "center_median_vox": 1.25
+   }
+  },
+  {
+   "id": "field_fit",
+   "stage": "position",
+   "kinds": [
+    "box",
+    "sphere",
+    "cylinder",
+    "cone",
+    "torus"
+   ],
+   "mode": "analytic",
+   "path": null,
+   "input_kind": "vf_exact",
+   "cost": 50,
+   "gate": null,
+   "metrics": {
+    "note": "see rotation/field_fit"
+   }
+  }
+ ],
+ "type_stage": {
+  "rule": "fused: descriptors + type_hier_dirlog_inside_v5clean_k4 (since 2026-10-10; before: type_hier_dirlog_inside_medium), weights = metrics parent_acc; legacy entries skipped (D-007)",
+  "gate_t": {
+   "test_fused_parent_acc": 0.8021,
+   "test_fused_sub_acc": 0.8839,
+   "mcnemar_vs_descriptors_p": 1.5236437320709229e-05,
+   "source": "docs/data/gate_t_medium.json"
+  }
+ }
+}

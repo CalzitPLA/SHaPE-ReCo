@@ -1,0 +1,187 @@
+{
+ "name": "f01_portal",
+ "description": "portal frame: 2 HEA 360 posts (4 m) and an HEA 400 girder (6 m span) on top",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "HEA 360",
+   "envelope": "HEA 360",
+   "section": {
+    "h": 350.0,
+    "b": 300.0,
+    "tw": 10.0,
+    "tf": 17.5,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    0.0,
+    4000.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 360",
+   "envelope": "HEA 360",
+   "section": {
+    "h": 350.0,
+    "b": 300.0,
+    "tw": 10.0,
+    "tf": 17.5,
+    "r": 27.0
+   },
+   "start": [
+    6000.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    6000.0,
+    0.0,
+    4000.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEA 400",
+   "envelope": "HEA 400",
+   "section": {
+    "h": 390.0,
+    "b": 300.0,
+    "tw": 11.0,
+    "tf": 19.0,
+    "r": 27.0
+   },
+   "start": [
+    -175.0,
+    0.0,
+    4195.0
+   ],
+   "end": [
+    6175.0,
+    0.0,
+    4195.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "butt",
+   "members": [
+    0,
+    2
+   ]
+  },
+  {
+   "type": "butt",
+   "members": [
+    1,
+    2
+   ]
+  }
+ ],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 2
+   }
+  ],
+  "adds": 9,
+  "cuts": 0,
+  "total": 9,
+  "notes": []
+ },
+ "volume_mm3": 215157128.01189828,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 1856,
+ "bbox_min": [
+  -175.0,
+  -150.0,
+  0.0
+ ],
+ "bbox_max": [
+  6175.0,
+  150.0,
+  4390.0
+ ],
+ "diagonal_mm": 7725.580884308959,
+ "stl_deflection_mm": 0.5
+}

@@ -1,0 +1,134 @@
+{
+ "name": "j04_x_crossing",
+ "description": "X-crossing: HEB 200 passing through the web of an HEA 400, between its flanges",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "ibeam",
+   "profile": "HEA 400",
+   "envelope": "HEA 400",
+   "section": {
+    "h": 390.0,
+    "b": 300.0,
+    "tw": 11.0,
+    "tf": 19.0,
+    "r": 27.0
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    3000.0,
+    0.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "kind": "ibeam",
+   "profile": "HEB 200",
+   "envelope": "HEB 200",
+   "section": {
+    "h": 200.0,
+    "b": 200.0,
+    "tw": 9.0,
+    "tf": 15.0,
+    "r": 18.0
+   },
+   "start": [
+    1500.0,
+    -1000.0,
+    0.0
+   ],
+   "end": [
+    1500.0,
+    1000.0,
+    0.0
+   ],
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "type": "through",
+   "members": [
+    1,
+    0
+   ]
+  }
+ ],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   },
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 1
+   }
+  ],
+  "adds": 6,
+  "cuts": 0,
+  "total": 6,
+  "notes": []
+ },
+ "volume_mm3": 63223695.463290304,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 1872,
+ "bbox_min": [
+  0.0,
+  -1000.0,
+  -195.0
+ ],
+ "bbox_max": [
+  3000.0,
+  1000.0,
+  195.0
+ ],
+ "diagonal_mm": 3626.5824132370135,
+ "stl_deflection_mm": 0.5
+}

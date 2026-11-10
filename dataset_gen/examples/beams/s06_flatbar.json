@@ -1,0 +1,66 @@
+{
+ "name": "s06_flatbar",
+ "description": "flat bar 100 x 20 x 1.5 m along z",
+ "units": "mm",
+ "members": [
+  {
+   "kind": "bar",
+   "profile": "FL 100x20",
+   "section": {
+    "w": 100,
+    "t": 20
+   },
+   "start": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    0.0,
+    1500.0
+   ],
+   "up": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "joints": [],
+ "features": [],
+ "mitres": [],
+ "expected_program": {
+  "ops": [
+   {
+    "op": "add",
+    "kind": "box",
+    "member": 0
+   }
+  ],
+  "adds": 1,
+  "cuts": 0,
+  "total": 1,
+  "notes": []
+ },
+ "volume_mm3": 3000000.0,
+ "valid": true,
+ "n_solids": 1,
+ "stl_facets": 12,
+ "bbox_min": [
+  -10.0,
+  -50.0,
+  0.0
+ ],
+ "bbox_max": [
+  10.0,
+  50.0,
+  1500.0
+ ],
+ "diagonal_mm": 1503.4626699722212,
+ "stl_deflection_mm": 0.5
+}
