@@ -167,14 +167,17 @@ blender -b -P packaging/logo/blender_logo.py -- --out packaging/logo/shape-reco-
 python3 packaging/logo/make_logo.py --3d packaging/logo/shape-reco-3d.png   # badge, molecule, wordmark, icons
 ```
 
-The skeletal formula is Wikipedia's (since 2026-11-10): `packaging/logo/molecule_2d.py` fetches the drawing the article
-shows (Wikimedia Commons `File:Batrachotoxin_skeletal.svg`, Ed (Edgar181), public domain), checks its SHA-1 and caches
-it unchanged in `packaging/logo/batrachotoxin-skeletal-wikipedia.svg` (source and licence in `batrachotoxin.json`);
-the badge keeps its geometry and only restyles it (cream lines thickened from 0.035 to 0.07 bond lengths, O orange,
-N pink, a navy halo). Name and sum formula on the ring come from PubChem (CID 6324647) through the MoleculMaker
-FreeCAD macro, cached in `packaging/logo/batrachotoxin-2d.sdf`. `python3 packaging/logo/molecule_2d.py [--refetch]`
-writes the formula alone (`batrachotoxin-2d.svg`); `python3 packaging/logo/make_logo.py` alone writes the earlier
-flat 2D logo.
+The skeletal formula is PubChem's depiction (since 2026-11-10, the user: "copy exactly the formula from pubchem"):
+`packaging/logo/molecule_2d.py` draws CID 6324647's 2D record (`record_type=2d`, the coordinates PubChem's own image
+is drawn from; fetched with the MoleculMaker FreeCAD macro and cached in `packaging/logo/batrachotoxin-2d.sdf`) with
+PubChem's conventions: hydrogens only on O and N and on stereo bonds, each with its bond and an H label; ring double
+bonds with an inner line, the C=O as a centred pair; wedges and hashes narrow at the stereo centre; every bond coloured
+half by each atom. PubChem serves the image only as PNG, so it is redrawn as vectors; only the proportions differ
+(lines 0.05 instead of 0.014 bond lengths, labels 0.40 instead of 0.15, so they stay readable in the badge) and the
+badge's colours (C and H cream, O orange, N pink, a navy halo). `python3 packaging/logo/molecule_2d.py [--refetch]`
+writes the formula alone in PubChem's colours (`batrachotoxin-2d.svg`), for a side-by-side check against
+`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6324647/PNG?image_size=1000x1000`;
+`python3 packaging/logo/make_logo.py` alone writes the earlier flat 2D logo.
 
 ### 3.3 The window
 

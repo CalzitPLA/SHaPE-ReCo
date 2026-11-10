@@ -279,4 +279,4 @@ Tests: run the files of the modules you change — the whole suite takes long.
 ## Licence
 
 GPL-3.0 (see `LICENSE`). The GUI uses PyQt5 (GPL-3.0); FreeCAD is LGPL-2.1. The skeletal formula of Batrachotoxin in
-the logo is Wikipedia's (Wikimedia Commons `File:Batrachotoxin_skeletal.svg` by Ed (Edgar181), public domain).
+the logo is PubChem's depiction (CID 6324647, its 2D record; PubChem, National Library of Medicine).

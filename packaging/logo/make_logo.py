@@ -15,9 +15,9 @@ and, with --3d <render.png> (the Blender render of blender_logo.py, 2048 px):
   ../shape-reco.svg, ../shape-reco.png  the application icon (install.sh, the GUI's window icon): the badge,
                            SVG with outlined text and a 256 px PNG
   previews/icon_sizes.png  the icon at the sizes a desktop shows it (128 to 16 px), to judge what stays readable
-  The badge carries Batrachotoxin, the frog's poison (molecule_2d.py): its skeletal formula as Wikipedia draws it
-  (Commons, public domain) in the free sky the spyglass points at, its name and sum formula (PubChem via the
-  MoleculMaker macro) along the ring. The disc and the
+  The badge carries Batrachotoxin, the frog's poison (molecule_2d.py): its skeletal formula as PubChem draws it (CID
+  6324647, the 2D record, via the MoleculMaker macro) in the free sky the spyglass points at, its name and sum formula
+  along the ring. The disc and the
   free sky come from <render>.json (blender_logo.py).
 
 Run: python3 packaging/logo/make_logo.py [--3d shape-reco-3d.png]
@@ -409,7 +409,7 @@ R_DISC = 230      # radius of the render disc inside the navy ring
 
 
 def molecule_overlay(meta):
-    """Batrachotoxin, the dart frog's poison, in the badge: Wikipedia's skeletal formula in the free sky the spyglass
+    """Batrachotoxin, the dart frog's poison, in the badge: PubChem's skeletal formula in the free sky the spyglass
     points at (fitted around the keep-out circles blender_logo.py exports: glass, frog, eyes, mast), and its name and
     sum formula along the bottom of the ring."""
     import numpy as np
@@ -437,7 +437,7 @@ def molecule_overlay(meta):
     off = ((xx - m0x) * (m1y - m0y) - (yy - m0y) * (m1x - m0x)) / math.hypot(m1x - m0x, m1y - m0y)
     free &= np.abs(off) > hw + 5                         # never across the mast
     dist = distance_transform_edt(free)
-    dr = m2.wikipedia_drawing()
+    dr = m2.pubchem_drawing()
     theta, s, tx, ty, s_max = m2.fit(dr["points"], dist)
     print(f"molecule: {s:.1f} px per bond (room for {s_max:.1f}), {math.degrees(theta):.0f} deg")
     sub = '<tspan font-size="8.5" baseline-shift="sub">{}</tspan>'
