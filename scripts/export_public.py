@@ -9,7 +9,9 @@ The repository's README.md (written for the public) and public/LICENSE become th
 
     python3 scripts/export_public.py --out ~/Documents/SHaPe-ReCo-public [--test]
 
-The target becomes a git repository with one commit and no remote; nothing is pushed. --test runs the manifest's
+A target that is a git repository already (the public repository's clone, ~/Documents/SHaPe-ReCo-public with its
+remote) keeps its history and gets one new commit with the export's changes; any other target becomes a new
+repository with one commit and no remote. Nothing is pushed. --test runs the manifest's
 verify_tests inside the export (the substitutions must not break the code).
 """
 
@@ -86,9 +88,16 @@ def build(out: Path, man: dict) -> dict:
     if r.returncode != 0:
         sys.exit(f"git archive: {r.stderr.decode()[-400:]}")
     blob = r.stdout
+    kept = out.parent / f".{out.name}.git-kept"         # an existing clone's history survives the rebuild
     if out.exists():
+        if (out / ".git").is_dir():
+            if kept.exists():
+                shutil.rmtree(kept)
+            (out / ".git").rename(kept)
         shutil.rmtree(out)
     out.mkdir(parents=True)
+    if kept.exists():
+        kept.rename(out / ".git")
     subs = man["substitute"]
     drops = man.get("drop_markdown_sections", {})
     n_text = n_bin = 0
@@ -147,8 +156,9 @@ def scrub_check(out: Path, forbidden) -> list:
 
 
 def git_init(out: Path, commit: str, author: str = ""):
-    """One commit; `author` ("Name <email>", the manifest's commit_author) is its author and committer, so the local
-    login and host of the machine that exports never reach the public history."""
+    """One commit (on top of the history when `out` is a clone already; none when nothing changed); `author` ("Name
+    <email>", the manifest's commit_author) is its author and committer, so the local login and host of the machine
+    that exports never reach the public history."""
     ident = []
     if author:
         name, email = author.rsplit(" <", 1)
@@ -156,8 +166,12 @@ def git_init(out: Path, commit: str, author: str = ""):
 
     def git(*a):
         subprocess.run(["git", *ident, "-C", str(out), *a], check=True, capture_output=True)
-    git("init", "-q", "-b", "main")
+    if not (out / ".git").is_dir():
+        git("init", "-q", "-b", "main")
     git("add", "-A")
+    if subprocess.run(["git", "-C", str(out), "diff", "--cached", "--quiet"]).returncode == 0:
+        print("no change against the previous export: no commit")
+        return
     git("commit", "-q", "-m", f"SHaPe ReCo, exported from the working repository at {commit[:8]}")
 
 
@@ -184,7 +198,7 @@ def main(argv=None):
                 print("   ", x)
         sys.exit(f"{len(hits)} forbidden hit(s) left: not committed")
     git_init(out, head, man.get("commit_author", ""))
-    print("scrub check clean; a git repository with one commit and no remote")
+    print("scrub check clean; committed in", out)
     if a.test:
         r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", *man["verify_tests"]], cwd=out)
         sys.exit(r.returncode)

@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="packaging/logo/shape-reco-3d-logo-dark.svg">
-    <img src="packaging/logo/shape-reco-3d-logo.svg" width="300"
+    <source media="(prefers-color-scheme: dark)" srcset="packaging/logo/shape-reco-3d-logo-dark.png">
+    <img src="packaging/logo/shape-reco-3d-logo.png" width="300"
          alt="SHaPe ReCo: a poison dart frog in a crow's nest looking out through a spyglass; Batrachotoxin in the sky">
   </picture>
 </p>

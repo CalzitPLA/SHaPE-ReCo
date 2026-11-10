@@ -158,7 +158,8 @@ icon `install.sh` installs (`packaging/shape-reco.svg` to `~/.local/share/icons/
 its poison Batrachotoxin in the sky, name and sum formula on the ring. While no part is loaded and no run computes,
 the 3D views show the badge turning slowly like a token (`reco_gui/logo_token.py`, since 2026-11-10). One build writes them and the full logo
 (`packaging/logo/shape-reco-3d-logo.svg`, badge and wordmark, and `shape-reco-3d-logo-dark.svg` with a light wordmark
-for dark backgrounds; `README.md` shows them on GitHub, the one matching the viewer's theme):
+for dark backgrounds; `README.md` shows both as 600 px PNGs, the one matching the viewer's theme, because
+GitHub serves SVGs with a CSP that may block the badge's embedded JPEG):
 
 ```bash
 # the render (Cycles, ~20 s on server_a's GPU; portable Blender 4.3.2 in /data/user/software); also <out>.json

@@ -8,7 +8,9 @@ Writes, next to this script:
   shape-reco-logo-text.svg  the same with live text (editable; needs Inter installed)
 and, with --3d <render.png> (the Blender render of blender_logo.py, 2048 px):
   shape-reco-3d-logo.svg   round badge cut from the render (embedded JPEG) + wordmark, text outlined
-  shape-reco-3d-logo-dark.svg  the same with a light wordmark, for dark backgrounds (README.md, GitHub's dark theme)
+  shape-reco-3d-logo-dark.svg  the same with a light wordmark, for dark backgrounds
+  shape-reco-3d-logo.png, shape-reco-3d-logo-dark.png  both as 600 px PNGs: README.md shows these (GitHub serves an
+                           SVG with a CSP that may block the embedded JPEG, the badge's picture)
   shape-reco-3d-badge.png  the badge alone, 1024 px, transparent outside the circle
   ../shape-reco.svg, ../shape-reco.png  the application icon (install.sh, the GUI's window icon): the badge,
                            SVG with outlined text and a 256 px PNG
@@ -479,6 +481,10 @@ def make_3d(render):
             out = HERE / name
             if outline_text(live, out):
                 print("wrote", out)
+            png = out.with_suffix(".png")
+            subprocess.run(["inkscape", str(live), "--export-type=png", f"--export-filename={png}", "-w", "600"],
+                           check=True, capture_output=True)
+            print("wrote", png)
         badge = Path(td) / "badge.svg"
         badge.write_text(svg(512, body, "SHaPe ReCo"))
         png = HERE / "shape-reco-3d-badge.png"
